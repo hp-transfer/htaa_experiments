@@ -1,0 +1,4 @@
+benchmark:
+  benchmark: nas
+  adjustment_id: a
+  trajectory_id: cifar

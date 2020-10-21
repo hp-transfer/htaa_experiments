@@ -1,0 +1,14 @@
+defaults:
+  - hydra/job_logging: bohb
+  - hydra/output: bohb
+  - benchmark: fcnet_aa
+  - approach: transfer_tpe
+  - runtype: eval_dim
+
+experiment_group: test
+experiment_name: test_${run_id}
+run_id: ${now:%Y-%m-%d-%H-%M-%S}
+worker_id: 0
+seed: 2
+nic_name: lo
+reference_losses_path: hp_transfer_aa_experiments/reference_losses.yaml

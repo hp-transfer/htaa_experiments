@@ -1,0 +1,5 @@
+benchmark:
+  benchmark: fcnet_aa
+  data_path: data/fcnet
+  adjustment_id: a
+  trajectory_id: protein

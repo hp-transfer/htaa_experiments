@@ -1,0 +1,12 @@
+# Python
+__pycache__
+*.egg-info
+
+# IDEA
+.idea
+
+# Experiments and data
+results/*
+data/*
+submit/arg_files/*.args
+plots/*
