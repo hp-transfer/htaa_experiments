@@ -16,6 +16,7 @@ import hp_transfer_benchmarks
 from hp_transfer_optimizers.core import nameserver as hpns
 from hp_transfer_optimizers.core import result as result_utils
 from hp_transfer_optimizers.core.worker import Worker
+from hp_transfer_optimizers.gp import GP
 from hp_transfer_optimizers.random_search import RandomSearch
 from hp_transfer_optimizers.tpe import TPE
 from hp_transfer_optimizers.transfer_importance import TransferImportance
@@ -150,7 +151,13 @@ class _HPOWorker(Worker):
 
     # pylint: disable=unused-argument
     def compute(
-        self, config_id, config, budget, working_directory, *args, **kwargs,
+        self,
+        config_id,
+        config,
+        budget,
+        working_directory,
+        *args,
+        **kwargs,
     ):
         task_identifier = kwargs["task_identifier"]
         development_stage = kwargs["development_stage"]
@@ -171,7 +178,10 @@ def _run_worker(args, benchmark, working_directory):
     time.sleep(5)  # short artificial delay to make sure the nameserver is already running
     host = hpns.nic_name_to_host(args.nic_name)
     w = _HPOWorker(
-        benchmark, run_id=args.run_id, host=host, logger=logging.getLogger("worker"),
+        benchmark,
+        run_id=args.run_id,
+        host=host,
+        logger=logging.getLogger("worker"),
     )
     w.load_nameserver_credentials(working_directory=str(working_directory))
     w.run(background=False)
@@ -192,6 +202,8 @@ def _get_optimizer(args, **core_master_kwargs):
         return TransferTop(**core_master_kwargs)
     elif args.approach == "transfer_importance":
         return TransferImportance(**core_master_kwargs)
+    elif args.approach == "gp":
+        return GP(**core_master_kwargs)
     else:
         raise ValueError
 
