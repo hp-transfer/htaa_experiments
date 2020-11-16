@@ -90,8 +90,8 @@ submit experiment_group benchmark runtypes approaches num_workers trajectory_ids
       submit/{{benchmark}}_nemo.sh
   else
     sbatch \
-      -o ${CLUSTER_OE}/%j.%x.oe \
-      -e ${CLUSTER_OE}/%j.%x.oe \
+      -o ${CLUSTER_OE}/%x.oe \
+      -e ${CLUSTER_OE}/%x.oe \
       -p {{queue}} \
       --array=1-${NUM_ARRAYS}%{{max_jobs}} \
       --export=ARGS_FILE=${ARGS_FILE} \
