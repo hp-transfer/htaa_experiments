@@ -194,14 +194,24 @@ def _get_optimizer(args, **core_master_kwargs):
         return TransferTPE(**core_master_kwargs, best_first=False)
     elif args.approach == "transfer_tpe_no_ttpe":
         return TransferTPE(**core_master_kwargs, do_ttpe=False)
+    elif args.approach == "best_first_transfer_gp":
+        return TransferTPE(**core_master_kwargs, use_gp=True)
+    elif args.approach == "transfer_gp":
+        return TransferTPE(**core_master_kwargs, best_first=False, use_gp=True)
+    elif args.approach == "best_first_gp":
+        return TransferTPE(**core_master_kwargs, do_ttpe=False, use_gp=True)
     elif args.approach == "random":
         return RandomSearch(**core_master_kwargs)
     elif args.approach == "tpe":
         return TPE(**core_master_kwargs)
     elif args.approach == "transfer_top":
         return TransferTop(**core_master_kwargs)
+    elif args.approach == "transfer_top_gp":
+        return TransferTop(**core_master_kwargs, use_gp=True)
     elif args.approach == "transfer_importance":
         return TransferImportance(**core_master_kwargs)
+    elif args.approach == "transfer_importance_gp":
+        return TransferImportance(**core_master_kwargs, use_gp=True)
     elif args.approach == "gp":
         return GP(**core_master_kwargs)
     else:
