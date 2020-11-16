@@ -5,7 +5,7 @@ from pathlib import Path
 
 import yaml.representer
 
-from hp_transfer_aa_experiments.analyse._read_results import load_data_to_df
+from hp_transfer_aa_experiments.analyse.read_results import load_data_to_df
 
 
 def row_to_references(row):

@@ -4,7 +4,7 @@ from pathlib import Path
 
 from hp_transfer_aa_experiments.analyse._plot_utils import plot_aggregates
 from hp_transfer_aa_experiments.analyse._plot_utils import plot_global_aggregates
-from hp_transfer_aa_experiments.analyse._read_results import load_data_to_df
+from hp_transfer_aa_experiments.analyse.read_results import load_data_to_df
 
 
 def _df_to_nan_stats(data, groupby_cols):
@@ -33,7 +33,14 @@ def analyse_results(results_path, output_dir, reference_losses):
     for approach_a, approach_b in nan_checks:
         data = df[(df.approach == approach_a) | (df.approach == approach_b)]
         nan_percent = _df_to_nan_stats(
-            data, ["benchmark", "trajectory", "adjustment", "runtype", "approach",],
+            data,
+            [
+                "benchmark",
+                "trajectory",
+                "adjustment",
+                "runtype",
+                "approach",
+            ],
         )
         plot_global_aggregates(
             nan_percent,
@@ -54,7 +61,8 @@ def analyse_results(results_path, output_dir, reference_losses):
         for approach_a, approach_b in nan_checks_detail:
             data = df_[(df_.approach == approach_a) | (df_.approach == approach_b)]
             nan_percent = _df_to_nan_stats(
-                data, ["benchmark", "trajectory", "adjustment", "approach"],
+                data,
+                ["benchmark", "trajectory", "adjustment", "approach"],
             )
             plot_aggregates(
                 nan_percent,

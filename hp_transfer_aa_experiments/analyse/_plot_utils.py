@@ -54,6 +54,8 @@ def get_approach_spelling(approach):
         return "TPE2"
     elif approach == "transfer_tpe":
         return "T2PE"
+    elif approach == "gp":
+        return "GP"
     else:
         raise ValueError
 
@@ -159,7 +161,9 @@ def _plot_violins(
     )
     sns.despine(ax=ax)
     ax.format(
-        title=title, xlabel=xlabel, ylabel=ylabel,
+        title=title,
+        xlabel=xlabel,
+        ylabel=ylabel,
     )
 
 
@@ -246,7 +250,11 @@ def plot_global_aggregates(
 
     figsize = (5.35, 2.4 if approach_hue else 2)
     fig, axs = proplot.subplots(
-        figsize=figsize, nrows=num_rows, ncols=num_plot_per_row, share=3, span=True,
+        figsize=figsize,
+        nrows=num_rows,
+        ncols=num_plot_per_row,
+        share=3,
+        span=True,
     )
     for (runtype, df), ax in zip(groups, axs):
         if approach_hue:

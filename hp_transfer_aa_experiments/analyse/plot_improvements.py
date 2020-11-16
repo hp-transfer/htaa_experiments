@@ -6,8 +6,8 @@ import pandas as pd
 
 from hp_transfer_aa_experiments.analyse._plot_utils import plot_aggregates
 from hp_transfer_aa_experiments.analyse._plot_utils import plot_global_aggregates
-from hp_transfer_aa_experiments.analyse._read_results import get_approach_data
-from hp_transfer_aa_experiments.analyse._read_results import load_data_to_df
+from hp_transfer_aa_experiments.analyse.read_results import get_approach_data
+from hp_transfer_aa_experiments.analyse.read_results import load_data_to_df
 
 
 def _df_to_normed_performance(df):
@@ -19,14 +19,22 @@ def _df_to_normed_performance(df):
         ]
 
     df[["10", "20", "40"]] = df.apply(
-        row_to_performance, axis="columns", result_type="expand",
+        row_to_performance,
+        axis="columns",
+        result_type="expand",
     )
     df = df.drop(
         columns=["loss", "losses", "num_hyperparameters", "repeat", "development_step"]
     )
 
     grouped = df.groupby(
-        ["benchmark", "trajectory", "adjustment", "runtype", "approach",]
+        [
+            "benchmark",
+            "trajectory",
+            "adjustment",
+            "runtype",
+            "approach",
+        ]
     )
     means = grouped.mean()
     means = means.reset_index().set_index(

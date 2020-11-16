@@ -35,11 +35,19 @@ def _parse_num_evals(df, reference_losses):
     return df
 
 
-def _get_batch_result_row(
-    benchmark, runtype, approach, trajectory, adjustment, repeat, batch_result_path
+def get_batch_result_row(
+    benchmark,
+    runtype,
+    approach,
+    trajectory,
+    adjustment,
+    repeat,
+    batch_result=None,
+    batch_result_path=None,
 ):
-    with batch_result_path.open("rb") as batch_result_stream:
-        batch_result = pickle.load(batch_result_stream)
+    if batch_result is None:
+        with batch_result_path.open("rb") as batch_result_stream:
+            batch_result = pickle.load(batch_result_stream)
     result = batch_result.results[0]  # Only one task in batch for now
     losses = [run.loss for run in result.get_all_runs()]
     best_loss = min(losses)
@@ -57,6 +65,20 @@ def _get_batch_result_row(
         losses,
         num_hyperparameters,
     ]
+
+
+RESULT_COLUMNS = [
+    "benchmark",
+    "runtype",
+    "approach",
+    "trajectory",
+    "adjustment",
+    "repeat",
+    "development_step",
+    "loss",
+    "losses",
+    "num_hyperparameters",
+]
 
 
 def load_data_to_df(results_path, offline_cache=True, reference_losses=None):
@@ -78,7 +100,7 @@ def load_data_to_df(results_path, offline_cache=True, reference_losses=None):
                             batch_result_paths = (repeat_path / "train").glob("batch_*")
                             for batch_result_path in batch_result_paths:
                                 all_rows.append(
-                                    _get_batch_result_row(
+                                    get_batch_result_row(
                                         benchmark_path.name,
                                         runtype_path.name,
                                         approach_path.name,
@@ -89,23 +111,13 @@ def load_data_to_df(results_path, offline_cache=True, reference_losses=None):
                                             "adjustment_id_", ""
                                         ),
                                         int(repeat_path.name.replace("repeat_", "")),
+                                        None,
                                         batch_result_path,
                                     )
                                 )
     df = pd.DataFrame(
         all_rows,
-        columns=[
-            "benchmark",
-            "runtype",
-            "approach",
-            "trajectory",
-            "adjustment",
-            "repeat",
-            "development_step",
-            "loss",
-            "losses",
-            "num_hyperparameters",
-        ],
+        columns=RESULT_COLUMNS,
     )
     df = df[df.development_step > 1]
     if reference_losses is not None:

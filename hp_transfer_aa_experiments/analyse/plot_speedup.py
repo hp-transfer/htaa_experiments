@@ -8,8 +8,8 @@ import pandas as pd
 from hp_transfer_aa_experiments.analyse._plot_utils import get_approach_spelling
 from hp_transfer_aa_experiments.analyse._plot_utils import plot_aggregates
 from hp_transfer_aa_experiments.analyse._plot_utils import plot_global_aggregates
-from hp_transfer_aa_experiments.analyse._read_results import get_approach_data
-from hp_transfer_aa_experiments.analyse._read_results import load_data_to_df
+from hp_transfer_aa_experiments.analyse.read_results import get_approach_data
+from hp_transfer_aa_experiments.analyse.read_results import load_data_to_df
 
 
 def _df_to_mean_ratio_with_tpe(df, data_tpe, groupby_cols):
@@ -36,10 +36,11 @@ def analyse_results(results_path, output_dir, reference_losses):
     )
 
     comparisons = [
-        [["tpe2"], "tpe"],
-        [["random"], "tpe"],
-        [["transfer_tpe_no_best_first", "transfer_tpe_no_ttpe"], "tpe"],
-        [["transfer_tpe_no_ttpe", "transfer_tpe"], "tpe"],
+        # [["tpe2"], "tpe"],
+        # [["random"], "tpe"],
+        # [["transfer_tpe_no_best_first", "transfer_tpe_no_ttpe"], "tpe"],
+        # [["transfer_tpe_no_ttpe", "transfer_tpe"], "tpe"],
+        [["transfer_gp"], "gp"]
     ]
     for approaches, baseline_approach in comparisons:
         data_dfs = [get_approach_data(df, approach) for approach in approaches]
@@ -82,7 +83,7 @@ def analyse_results(results_path, output_dir, reference_losses):
         )
 
     comparisons_detail = [
-        [["transfer_tpe_no_best_first", "transfer_tpe_no_ttpe"], "tpe"],
+        # [["transfer_tpe_no_best_first", "transfer_tpe_no_ttpe"], "tpe"],
     ]
     for runtype, df_runtype in df.groupby("runtype"):
         df_runtype = df_runtype.drop(columns=["runtype"])
@@ -93,7 +94,9 @@ def analyse_results(results_path, output_dir, reference_losses):
             data_baseline = get_approach_data(df_runtype, baseline_approach)
             mean_ratios = [
                 _df_to_mean_ratio_with_tpe(
-                    data_df, data_baseline, ["benchmark", "trajectory", "adjustment"],
+                    data_df,
+                    data_baseline,
+                    ["benchmark", "trajectory", "adjustment"],
                 )
                 for data_df in data_dfs
             ]

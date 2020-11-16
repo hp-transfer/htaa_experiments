@@ -7,12 +7,15 @@ from pathlib import Path
 
 import hydra
 import numpy as np
+import pandas as pd
 import yaml
 
 from gitinfo import gitinfo
 
 import hp_transfer_benchmarks
 
+from hp_transfer_aa_experiments.analyse.read_results import RESULT_COLUMNS
+from hp_transfer_aa_experiments.analyse.read_results import get_batch_result_row
 from hp_transfer_optimizers.core import nameserver as hpns
 from hp_transfer_optimizers.core import result as result_utils
 from hp_transfer_optimizers.core.worker import Worker
@@ -69,7 +72,6 @@ def _run_on_task_batch(
     trials_until_loss,
     args,
 ):
-    write_path = Path(run_mode.lower())
     previous_results = result_trajectory if args.approach.startswith("transfer") else None
     result_batch = result_utils.BatchResult(train_step, configspace)
     for task in task_batch:
@@ -83,7 +85,28 @@ def _run_on_task_batch(
         )
         result_batch.insert(task_result, task)
 
-    result_batch.write(write_path)
+    # write_path = Path(run_mode.lower())
+    # result_batch.write(write_path)
+
+    if train_step > 1:
+        batch_result_row = get_batch_result_row(
+            args.benchmark.benchmark,
+            args.runtype.type,
+            args.approach,
+            args.benchmark.trajectory_id,
+            args.benchmark.adjustment_id,
+            args.run_id,
+            result_batch,
+        )
+        df = pd.DataFrame(
+            [batch_result_row],
+            columns=RESULT_COLUMNS,
+        )
+        result_path = Path(
+            hydra.utils.to_absolute_path("results"), args.experiment_group, "results.csv"
+        )
+        with result_path.open("a") as result_stream:
+            df.to_csv(result_stream, header=result_stream.tell() == 0)
     return result_batch
 
 
@@ -194,26 +217,32 @@ def _get_optimizer(args, **core_master_kwargs):
         return TransferTPE(**core_master_kwargs, best_first=False)
     elif args.approach == "transfer_tpe_no_ttpe":
         return TransferTPE(**core_master_kwargs, do_ttpe=False)
-    elif args.approach == "best_first_transfer_gp":
-        return TransferTPE(**core_master_kwargs, use_gp=True)
-    elif args.approach == "transfer_gp":
-        return TransferTPE(**core_master_kwargs, best_first=False, use_gp=True)
-    elif args.approach == "best_first_gp":
-        return TransferTPE(**core_master_kwargs, do_ttpe=False, use_gp=True)
-    elif args.approach == "random":
-        return RandomSearch(**core_master_kwargs)
     elif args.approach == "tpe":
         return TPE(**core_master_kwargs)
+    elif args.approach == "random":
+        return RandomSearch(**core_master_kwargs)
     elif args.approach == "transfer_top":
         return TransferTop(**core_master_kwargs)
-    elif args.approach == "transfer_top_gp":
-        return TransferTop(**core_master_kwargs, use_gp=True)
     elif args.approach == "transfer_importance":
         return TransferImportance(**core_master_kwargs)
+    elif args.approach == "transfer_top_gp":
+        return TransferTop(**core_master_kwargs, use_gp=True)
     elif args.approach == "transfer_importance_gp":
         return TransferImportance(**core_master_kwargs, use_gp=True)
     elif args.approach == "gp":
-        return GP(**core_master_kwargs)
+        return GP(**core_master_kwargs, best_first=False, use_gp=True, do_ttpe=False)
+    elif args.approach == "transfer_intersection_model_best_first_gp":
+        return TransferTPE(
+            **core_master_kwargs, best_first=True, use_gp=True, do_ttpe=True
+        )
+    elif args.approach == "transfer_intersection_model_gp":
+        return TransferTPE(
+            **core_master_kwargs, best_first=False, use_gp=True, do_ttpe=True
+        )
+    elif args.approach == "transfer_best_first_gp":
+        return TransferTPE(
+            **core_master_kwargs, use_gp=True, best_first=True, do_ttpe=False
+        )
     else:
         raise ValueError
 
