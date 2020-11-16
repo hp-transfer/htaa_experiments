@@ -7,14 +7,12 @@ from pathlib import Path
 
 import hydra
 import numpy as np
-import pandas as pd
 import yaml
 
 from gitinfo import gitinfo
 
 import hp_transfer_benchmarks
 
-from hp_transfer_aa_experiments.analyse.read_results import RESULT_COLUMNS
 from hp_transfer_aa_experiments.analyse.read_results import get_batch_result_row
 from hp_transfer_optimizers.core import nameserver as hpns
 from hp_transfer_optimizers.core import result as result_utils
@@ -98,15 +96,14 @@ def _run_on_task_batch(
             args.run_id,
             result_batch,
         )
-        df = pd.DataFrame(
-            [batch_result_row],
-            columns=RESULT_COLUMNS,
-        )
         result_path = Path(
             hydra.utils.to_absolute_path("results"), args.experiment_group, "results.csv"
         )
         with result_path.open("a") as result_stream:
-            df.to_csv(result_stream, header=result_stream.tell() == 0)
+            result_stream.write(
+                f"{','.join([str(value) for value in batch_result_row])}\n"
+            )
+
     return result_batch
 
 
