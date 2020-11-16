@@ -9,41 +9,11 @@ hydra:
         datefmt: "%Y-%m-%d %H:%M:%S"
 
     handlers:
-      console:
-        class: logging.StreamHandler
-        formatter: standard
-      console_warning:
-        class: logging.StreamHandler
-        formatter: standard
-        level: WARNING
       full_file:
         filename: full.log
-        class: logging.FileHandler
-        formatter: standard
-      main_file:
-        filename: main.log
-        class: logging.FileHandler
-        formatter: standard
-      master:
-        filename: master.log
-        class: logging.FileHandler
-        formatter: standard
-      worker:
-        filename: worker_${worker_id}.log
         class: logging.FileHandler
         formatter: standard
 
     root:
      level: INFO
      handlers: [full_file]
-
-    loggers:
-      hp_transfer_aa_experiments:
-        level: INFO
-        handlers: [console, main_file]
-      master:
-        level: INFO
-        handlers: [master, console_warning]
-      worker:
-        level: INFO
-        handlers: [worker, console_warning]

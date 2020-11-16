@@ -136,7 +136,7 @@ def _train_and_eval(optimizer, benchmark, args):
                 trials_until_loss,
                 args,
             )
-    result_trajectory.write("train")
+    # result_trajectory.write("train")
 
 
 class _HPOWorker(Worker):
