@@ -234,9 +234,25 @@ def _get_optimizer(args, **core_master_kwargs):
         return TransferTPE(
             **core_master_kwargs, best_first=True, use_gp=True, do_ttpe=True
         )
+    elif args.approach == "transfer_intersection_model_best_first_gp_no_ra":
+        return TransferTPE(
+            **core_master_kwargs,
+            best_first=True,
+            use_gp=True,
+            do_ttpe=True,
+            range_adjustment=True,
+        )
     elif args.approach == "transfer_intersection_model_gp":
         return TransferTPE(
             **core_master_kwargs, best_first=False, use_gp=True, do_ttpe=True
+        )
+    elif args.approach == "transfer_intersection_model_gp_no_ra":
+        return TransferTPE(
+            **core_master_kwargs,
+            best_first=False,
+            use_gp=True,
+            do_ttpe=True,
+            range_adjustment=True,
         )
     elif args.approach == "transfer_best_first_gp":
         return TransferTPE(
