@@ -89,7 +89,7 @@ def _run_on_task_batch(
     if train_step > 1:
         batch_result_row = get_batch_result_row(
             args.benchmark.benchmark,
-            args.runtype.type,
+            args.runtype.dim_factor_pre_adjustment,
             args.approach,
             args.benchmark.trajectory_id,
             args.benchmark.adjustment_id,
