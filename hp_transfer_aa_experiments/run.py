@@ -101,6 +101,7 @@ def _run_on_task_batch(
             args.experiment_group,
             f"results/{args.experiment_name.replace('/', ',')}.csv",
         )
+        result_path.parent.mkdir(exist_ok=True, parents=True)
         with result_path.open("a") as result_stream:
             result_stream.write(
                 "\t".join([str(value) for value in batch_result_row]) + "\n"
