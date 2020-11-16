@@ -101,7 +101,7 @@ def _run_on_task_batch(
         )
         with result_path.open("a") as result_stream:
             result_stream.write(
-                f"{','.join([str(value) for value in batch_result_row])}\n"
+                "\t".join([str(value) for value in batch_result_row]) + "\n"
             )
 
     return result_batch
