@@ -1,3 +1,4 @@
+import fcntl
 import logging
 import logging.config
 import random
@@ -100,10 +101,11 @@ def _run_on_task_batch(
             hydra.utils.to_absolute_path("results"), args.experiment_group, "results.csv"
         )
         with result_path.open("a") as result_stream:
+            fcntl.flock(result_stream, fcntl.LOCK_EX)
             result_stream.write(
                 "\t".join([str(value) for value in batch_result_row]) + "\n"
             )
-
+            fcntl.flock(result_stream, fcntl.LOCK_UN)
     return result_batch
 
 
