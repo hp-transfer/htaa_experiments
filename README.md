@@ -1,5 +1,18 @@
 # Hyperparameter Transfer Across Developer Adjustments: Experiments
 
+## Installation
+
+```
+git clone https://github.com/hp-transfer/ht_optimizers.git
+git clone https://github.com/hp-transfer/ht_benchmarks.git
+git clone https://github.com/hp-transfer/htaa_experiments.git
+cd htaa_experiments
+
+# Activate virtual / conda environment [-c conda-forge swig gcc_linux-64 gxx_linux-64]
+poetry install
+```
+
+
 
 ## Experiment results structure
 
