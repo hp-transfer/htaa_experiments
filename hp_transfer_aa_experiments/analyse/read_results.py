@@ -3,6 +3,7 @@ import pickle
 from functools import partial
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import yaml
 
@@ -80,15 +81,14 @@ RESULT_COLUMNS = [
     "num_hyperparameters",
 ]
 
+_RESULT_COLUMNS_DTYPES = [str, str, str, str, str, np.int, np.int, np.float, str, np.int]
 
-def load_data_to_df(results_path, offline_cache=True, reference_losses=None):
-    cache_path = results_path / "_load_cache.csv"
-    if offline_cache and cache_path.exists():
-        return pd.read_pickle(cache_path)
+_RESULT_COLUMN_TO_DTYPE = {
+    column: dtype for column, dtype in zip(RESULT_COLUMNS, _RESULT_COLUMNS_DTYPES)
+}
 
-    def is_benchmark_path(p):
-        return p.is_dir() and not p.name.startswith("cluster_oe") and not p.name == "args"
 
+def _read_from_tree(is_benchmark_path, results_path):
     all_rows = []
     benchmark_paths = (p for p in results_path.iterdir() if is_benchmark_path(p))
     for benchmark_path in benchmark_paths:
@@ -115,10 +115,46 @@ def load_data_to_df(results_path, offline_cache=True, reference_losses=None):
                                         batch_result_path,
                                     )
                                 )
-    df = pd.DataFrame(
-        all_rows,
-        columns=RESULT_COLUMNS,
-    )
+    return all_rows
+
+
+def load_data_to_df(results_path, offline_cache=True, reference_losses=None):
+    cache_path = results_path / "_load_cache.csv"
+    if offline_cache and cache_path.exists():
+        return pd.read_pickle(cache_path)
+
+    def is_benchmark_path(p):
+        return p.is_dir() and not p.name.startswith("cluster_oe") and not p.name == "args"
+
+    individual_result_path = results_path / "results"
+    if individual_result_path.exists():
+        dfs = []
+        for individual_result in individual_result_path.iterdir():
+            with individual_result.open() as result_stream:
+                df = pd.read_csv(
+                    result_stream,
+                    sep="\t",
+                    header=None,
+                    names=RESULT_COLUMNS,
+                    index_col=False,
+                    dtype=_RESULT_COLUMN_TO_DTYPE,
+                )
+                dfs.append(df)
+        df = pd.concat(dfs, axis=0, ignore_index=True)
+
+        def parse_losses(losses):
+            losses = losses.strip("[]")
+            losses = losses.split(", ")
+            return [float(loss) for loss in losses]
+
+        df["losses"] = df["losses"].apply(parse_losses)
+    else:
+        all_rows = _read_from_tree(is_benchmark_path, results_path)
+        df = pd.DataFrame(
+            all_rows,
+            columns=RESULT_COLUMNS,
+        )
+
     df = df[df.development_step > 1]
     if reference_losses is not None:
         df = _parse_num_evals(df, reference_losses)
