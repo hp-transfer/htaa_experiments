@@ -4,7 +4,8 @@
 
 # Sync result data from cluster
 get experiment_group host="meta":
-  rsync -a --info=progress2 --info=name0 {{host}}:htaa_experiments/results/{{experiment_group}} results/
+  mkdir -p results/{{experiment_group}}/results
+  rsync -a --info=progress2 --info=name0 {{host}}:htaa_experiments/results/{{experiment_group}}/results results/{{experiment_group}}
   rm results/{{experiment_group}}/_load_cache.csv
 
 # Plot a result
