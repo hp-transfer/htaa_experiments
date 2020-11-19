@@ -230,6 +230,8 @@ def _get_optimizer(args, **core_master_kwargs):
         return TransferImportance(**core_master_kwargs, use_gp=True)
     elif args.approach == "gp":
         return GP(**core_master_kwargs)
+    elif args.approach == "gp2":
+        return GP(**core_master_kwargs)
     elif args.approach == "transfer_intersection_model_best_first_gp":
         return TransferTPE(
             **core_master_kwargs, best_first=True, use_gp=True, do_ttpe=True
