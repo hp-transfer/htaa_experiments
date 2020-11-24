@@ -220,6 +220,8 @@ def _get_optimizer(args, **core_master_kwargs):
         return TPE(**core_master_kwargs)
     elif args.approach == "tpe2":
         return TPE(**core_master_kwargs)
+    elif args.approach == "tpe3":
+        return TPE(**core_master_kwargs)
     elif args.approach == "random":
         return RandomSearch(**core_master_kwargs)
     elif args.approach == "transfer_top":
