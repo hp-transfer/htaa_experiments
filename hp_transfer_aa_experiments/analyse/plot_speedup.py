@@ -40,7 +40,15 @@ def analyse_results(results_path, output_dir, reference_losses):
         # [["random"], "tpe"],
         # [["transfer_tpe_no_best_first", "transfer_tpe_no_ttpe"], "tpe"],
         # [["transfer_tpe_no_ttpe", "transfer_tpe"], "tpe"],
-        [["transfer_gp"], "gp"]
+        [["gp"], "gp2"],
+        [["gp"], "random"],
+        [["transfer_intersection_model_gp_no_ra", "transfer_best_first_gp"], "gp"],
+        [
+            ["transfer_intersection_model_best_first_gp_no_ra", "transfer_best_first_gp"],
+            "gp",
+        ],
+        [["transfer_intersection_model_best_first_gp_no_ra"], "transfer_best_first_gp"],
+        [["gp"], "tpe"],
     ]
     for approaches, baseline_approach in comparisons:
         data_dfs = [get_approach_data(df, approach) for approach in approaches]
@@ -56,9 +64,9 @@ def analyse_results(results_path, output_dir, reference_losses):
         for mean_ratio, approach in zip(mean_ratios, approaches):
             mean_ratio["approach"] = approach
         mean_ratio = pd.concat(mean_ratios)
-        if approaches[0] == "tpe2":
-            ymajorlocator = mpl.ticker.MultipleLocator(0.1)
-            yminorlocator = None
+        if baseline_approach == "gp2":
+            ymajorlocator = mpl.ticker.MultipleLocator(0.2)
+            yminorlocator = mpl.ticker.MultipleLocator(0.2)
         elif (
             approaches[0] == "transfer_tpe_no_best_first"
             and baseline_approach == "transfer_tpe"
@@ -68,13 +76,13 @@ def analyse_results(results_path, output_dir, reference_losses):
             ymajorlocator = mpl.ticker.MultipleLocator(0.5)
         else:
             ymajorlocator = mpl.ticker.MultipleLocator(1)
-            yminorlocator = mpl.ticker.MultipleLocator(0.5)
+            yminorlocator = mpl.ticker.MultipleLocator(1)
         plot_global_aggregates(
             mean_ratio,
             output_dir,
             f"global_speedup_{'+'.join(approaches)}_over_{baseline_approach}",
             ylabel=f"Speedup Over {get_approach_spelling(baseline_approach)}",
-            xlabel="TPE Evaluations for\nReference Objective [\#]",
+            xlabel="GP Evaluations for\nReference Objective [\#]",
             yline=1,
             ymajorlocator=ymajorlocator,
             yminorlocator=yminorlocator,
@@ -83,7 +91,18 @@ def analyse_results(results_path, output_dir, reference_losses):
         )
 
     comparisons_detail = [
-        # [["transfer_tpe_no_best_first", "transfer_tpe_no_ttpe"], "tpe"],
+        [["transfer_intersection_model_gp_no_ra", "transfer_best_first_gp"], "gp"],
+        [
+            ["transfer_intersection_model_best_first_gp_no_ra", "transfer_best_first_gp"],
+            "gp",
+        ],
+        [
+            [
+                "transfer_intersection_model_best_first_gp_no_ra",
+                "transfer_intersection_model_gp_no_ra",
+            ],
+            "transfer_best_first_gp",
+        ],
     ]
     for runtype, df_runtype in df.groupby("runtype"):
         df_runtype = df_runtype.drop(columns=["runtype"])
@@ -108,10 +127,10 @@ def analyse_results(results_path, output_dir, reference_losses):
                 output_dir,
                 f"speedup_{'+'.join(approaches)}_over_{baseline_approach}_{runtype}",
                 ylabel=f"Speedup Over {get_approach_spelling(baseline_approach)}",
-                xlabel="TPE Evaluations for\nReference Objective [\#]",
+                xlabel="GP Evaluations for\nReference Objective [\#]",
                 yline=1,
                 ymajorlocator=mpl.ticker.MultipleLocator(1),
-                yminorlocator=mpl.ticker.MultipleLocator(0.5),
+                yminorlocator=mpl.ticker.MultipleLocator(1),
                 approach_hue=len(approaches) == 2,
                 geometric_mean=True,
             )

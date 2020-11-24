@@ -11,8 +11,7 @@ from matplotlib import pyplot as plt
 
 def _save_fig(fig, output_dir, filename):
     fig.savefig(Path(output_dir) / f"{filename}.pdf", bbox_inches="tight", dpi=600)
-    fig.savefig(Path(output_dir) / f"{filename}.pgf", bbox_inches="tight", dpi=600)
-    print(f'Saved to "{filename}.{{pdf,pgf}}"')
+    print(f'Saved to "{output_dir}/{filename}.pdf"')
 
 
 def set_general_plot_style():
@@ -56,8 +55,16 @@ def get_approach_spelling(approach):
         return "T2PE"
     elif approach == "gp":
         return "GP"
+    elif approach == "gp2":
+        return "GP$_2$"
+    elif approach == "random":
+        return "Random"
+    elif approach == "transfer_best_first_gp":
+        return "Best First"
+    elif approach == "transfer_intersection_model_gp_no_ra":
+        return "TGP"
     else:
-        raise ValueError
+        return approach
 
 
 def get_benchmark_spelling(benchmark, adjustment):
@@ -78,9 +85,9 @@ def get_benchmark_spelling(benchmark, adjustment):
 def get_runtype_spelling(runtype):
     if runtype.startswith("eval_ref"):
         evals = runtype[-2:]
-        return f"{evals} Previous Evaluations"
     else:
-        raise ValueError
+        evals = runtype
+    return f"{evals} Previous Evaluations"
 
 
 def set_hue_approach_spelling(df):
@@ -90,6 +97,17 @@ def set_hue_approach_spelling(df):
     df["approach"].replace("transfer_importance", "Drop Unimportant", inplace=True)
     df["approach"].replace("transfer_tpe_no_best_first", "Transfer TPE", inplace=True)
     df["approach"].replace("transfer_tpe_no_ttpe", "Best First", inplace=True)
+    df["approach"].replace("transfer_best_first_gp", "Best First", inplace=True)
+    df["approach"].replace(
+        "transfer_intersection_model_gp_no_ra", "Transfer GP", inplace=True
+    )
+    df["approach"].replace(
+        "transfer_intersection_model_best_first_gp_no_ra",
+        "Best First + Transfer GP",
+        inplace=True,
+    )
+    df["approach"].replace("transfer_top_gp", "Only Optimize New", inplace=True)
+    df["approach"].replace("transfer_importance_gp", "Drop Unimportant", inplace=True)
     return df
 
 
@@ -157,7 +175,7 @@ def _plot_violins(
         bw=0.3,
         scale="width",
         saturation=1,
-        linewidth=0.9,
+        linewidth=0.8,
     )
     sns.despine(ax=ax)
     ax.format(
@@ -190,7 +208,12 @@ def plot_aggregates(
     num_rows = math.ceil(num_plots / num_plot_per_row)
 
     fig, axs = proplot.subplots(
-        figsize=(5.35, 8), nrows=num_rows, ncols=num_plot_per_row, share=3, span=True
+        figsize=(5.35, 8),
+        nrows=num_rows,
+        ncols=num_plot_per_row,
+        sharey=3,
+        sharex=3,
+        span=True,
     )
 
     for ((benchmark, adjustment), df), ax in zip(groups, axs):
@@ -214,14 +237,16 @@ def plot_aggregates(
     _format(fig, axs, ymajorlocator, yminorlocator)
 
     # Proplot can not share limits yet
-    x0 = min(bbox.x0 for bbox in axs.viewLim)
     if clip_to_zero:
         y0 = 0
     else:
         y0 = min(bbox.y0 for bbox in axs.viewLim)
-    x1 = max(bbox.x1 for bbox in axs.viewLim)
     y1 = max(bbox.y1 for bbox in axs.viewLim) * 1.1
-    axs.format(xlim=(x0, x1), ylim=(y0, y1))
+    axs.format(ylim=(y0, y1))
+
+    # if clip_to_zero:
+    #     for ax in axs:
+    #         ax.set_ylim(bottom=0)
 
     _save_fig(fig, output_dir, filename=filename)
 
@@ -248,7 +273,7 @@ def plot_global_aggregates(
     num_plot_per_row = 3
     num_rows = math.ceil(num_plots / num_plot_per_row)
 
-    figsize = (5.35, 2.4 if approach_hue else 2)
+    figsize = (5.35, 2.6 if approach_hue else 2.2)
     fig, axs = proplot.subplots(
         figsize=figsize,
         nrows=num_rows,
@@ -265,9 +290,8 @@ def plot_global_aggregates(
 
         if geometric_mean:
             benchmark_means = grouped_df.apply(lambda x: x.prod().pow(1 / len(x)))
-            # mean_mean = benchmark_means.reset_index().set_index(["benchmark", "adjustment"])
-            # # mean_mean = mean_mean[mean_mean.approach == "Best First"]
-            # mean_mean = mean_mean.prod().pow(1/len(mean_mean))
+            # mean_mean = benchmark_means.prod().pow(1/len(benchmark_means))
+            # print(mean_mean)
         else:
             benchmark_means = grouped_df.mean()
 
@@ -292,5 +316,6 @@ def plot_global_aggregates(
 
     _format(fig, axs, ymajorlocator, yminorlocator, approach_hue)
     if clip_to_zero:
-        axs.format(ylim=(0, axs.viewLim[0].y1))
+        for ax in axs:
+            ax.set_ylim(bottom=0)
     _save_fig(fig, output_dir, filename=filename)

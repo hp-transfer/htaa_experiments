@@ -41,7 +41,7 @@ def _df_to_normed_performance(df):
         ["benchmark", "trajectory", "adjustment", "runtype"]
     )
 
-    baseline = df[df.approach == "tpe"]
+    baseline = df[df.approach == "gp"]
     baseline = baseline.drop(columns=["approach"])
     baseline_grouped = baseline.groupby(
         ["benchmark", "trajectory", "adjustment", "runtype"]
@@ -63,12 +63,14 @@ def analyse_results(results_path, output_dir):
     df = _df_to_normed_performance(df)
 
     ylabel = r"""Improvement Over
-    TPE [SD\textsubscript{TPE} $+ \varepsilon]$"""
+    GP [SD\textsubscript{GP} $+ \varepsilon]$"""
 
     normed_checks = [
-        # "transfer_tpe",
-        ["transfer_tpe_no_best_first", "transfer_tpe_no_ttpe"],
-        ["transfer_top", "transfer_importance"],
+        # ["transfer_tpe_no_best_first", "transfer_tpe_no_ttpe"],
+        # ["transfer_top", "transfer_importance"],
+        ["transfer_best_first_gp", "transfer_intersection_model_gp_no_ra"],
+        ["transfer_best_first_gp", "transfer_intersection_model_best_first_gp_no_ra"],
+        ["transfer_top_gp", "transfer_importance_gp"],
     ]
     for approaches in normed_checks:
         data_dfs = [get_approach_data(df, approach) for approach in approaches]
