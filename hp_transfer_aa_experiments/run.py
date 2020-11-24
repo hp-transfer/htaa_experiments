@@ -215,7 +215,7 @@ def _get_optimizer(args, **core_master_kwargs):
     elif args.approach == "transfer_tpe_no_best_first":
         return TransferTPE(**core_master_kwargs, best_first=False)
     elif args.approach == "transfer_tpe_no_ttpe":
-        return TransferTPE(**core_master_kwargs, do_ttpe=False)
+        return TransferTPE(**core_master_kwargs, do_ttpe=False, best_first=True)
     elif args.approach == "tpe":
         return TPE(**core_master_kwargs)
     elif args.approach == "tpe2":
