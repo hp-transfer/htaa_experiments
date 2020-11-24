@@ -5,12 +5,14 @@ import time
 
 from pathlib import Path
 
-import hp_transfer_benchmarks
 import hydra
 import numpy as np
 import yaml
 
 from gitinfo import gitinfo
+
+import hp_transfer_benchmarks
+
 from hp_transfer_aa_experiments.analyse.read_results import get_batch_result_row
 from hp_transfer_optimizers.core import nameserver as hpns
 from hp_transfer_optimizers.core import result as result_utils
@@ -215,6 +217,8 @@ def _get_optimizer(args, **core_master_kwargs):
     elif args.approach == "transfer_tpe_no_ttpe":
         return TransferTPE(**core_master_kwargs, do_ttpe=False)
     elif args.approach == "tpe":
+        return TPE(**core_master_kwargs)
+    elif args.approach == "tpe2":
         return TPE(**core_master_kwargs)
     elif args.approach == "random":
         return RandomSearch(**core_master_kwargs)
