@@ -41,14 +41,15 @@ def analyse_results(results_path, output_dir, reference_losses):
         # [["transfer_tpe_no_best_first", "transfer_tpe_no_ttpe"], "tpe"],
         # [["transfer_tpe_no_ttpe", "transfer_tpe"], "tpe"],
         [["gp"], "gp2"],
-        [["gp"], "random"],
-        [["transfer_intersection_model_gp_no_ra", "transfer_best_first_gp"], "gp"],
+        [["gp", "tpe"], "random"],
         [
-            ["transfer_intersection_model_best_first_gp_no_ra", "transfer_best_first_gp"],
+            [
+                "transfer_intersection_model_gp_no_ra",
+                "transfer_best_first_gp",
+                "transfer_intersection_model_best_first_gp_no_ra",
+            ],
             "gp",
         ],
-        [["transfer_intersection_model_best_first_gp_no_ra"], "transfer_best_first_gp"],
-        [["gp"], "tpe"],
     ]
     for approaches, baseline_approach in comparisons:
         data_dfs = [get_approach_data(df, approach) for approach in approaches]
@@ -86,22 +87,19 @@ def analyse_results(results_path, output_dir, reference_losses):
             yline=1,
             ymajorlocator=ymajorlocator,
             yminorlocator=yminorlocator,
-            approach_hue=len(approaches) == 2,
+            approach_hue=len(approaches) > 1,
+            approach_split=len(approaches) == 2,
             geometric_mean=True,
         )
 
     comparisons_detail = [
-        [["transfer_intersection_model_gp_no_ra", "transfer_best_first_gp"], "gp"],
-        [
-            ["transfer_intersection_model_best_first_gp_no_ra", "transfer_best_first_gp"],
-            "gp",
-        ],
         [
             [
-                "transfer_intersection_model_best_first_gp_no_ra",
                 "transfer_intersection_model_gp_no_ra",
+                "transfer_best_first_gp",
+                "transfer_intersection_model_best_first_gp_no_ra",
             ],
-            "transfer_best_first_gp",
+            "gp",
         ],
     ]
     for runtype, df_runtype in df.groupby("runtype"):
@@ -131,7 +129,8 @@ def analyse_results(results_path, output_dir, reference_losses):
                 yline=1,
                 ymajorlocator=mpl.ticker.MultipleLocator(1),
                 yminorlocator=mpl.ticker.MultipleLocator(1),
-                approach_hue=len(approaches) == 2,
+                approach_hue=len(approaches) > 1,
+                approach_split=len(approaches) == 2,
                 geometric_mean=True,
             )
 

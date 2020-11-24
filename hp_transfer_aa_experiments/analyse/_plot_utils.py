@@ -92,6 +92,7 @@ def get_runtype_spelling(runtype):
 
 def set_hue_approach_spelling(df):
     df["approach"].replace("tpe", "TPE", inplace=True)
+    df["approach"].replace("gp", "GP", inplace=True)
     df["approach"].replace("transfer_tpe", "Best First + Transfer TPE", inplace=True)
     df["approach"].replace("transfer_top", "Only Optimize New", inplace=True)
     df["approach"].replace("transfer_importance", "Drop Unimportant", inplace=True)
@@ -143,6 +144,7 @@ def _plot_violins(
     yline=None,
     approach_hue=False,
     geometric_mean=False,
+    approach_split=False,
 ):
     def draw_quartiles(self, ax, data, support, density, center, split=False):
         mean_ = data.prod() ** (1 / len(data)) if geometric_mean else data.mean()
@@ -163,19 +165,27 @@ def _plot_violins(
 
     if yline is not None:
         ax.axhline(y=yline, color="black", linestyle="--", linewidth=0.6)
+
+    if approach_hue:
+        approaches = benchmark_means.approach.unique()
+        ordering = sorted(approaches)
+    else:
+        ordering = None
+
     sns.violinplot(
         ax=ax,
         data=benchmark_means,
         x="variable",
         y="value",
         hue="approach" if approach_hue else None,
-        split=approach_hue,
+        split=approach_split,
         cut=0,
         inner="quartile",
         bw=0.3,
         scale="width",
         saturation=1,
         linewidth=0.8,
+        hue_order=ordering,
     )
     sns.despine(ax=ax)
     ax.format(
@@ -197,6 +207,7 @@ def plot_aggregates(
     approach_hue=False,
     geometric_mean=True,
     clip_to_zero=True,
+    approach_split=False,
 ):
     set_general_plot_style()
 
@@ -232,6 +243,7 @@ def plot_aggregates(
             yline,
             approach_hue,
             geometric_mean,
+            approach_split,
         )
 
     _format(fig, axs, ymajorlocator, yminorlocator)
@@ -263,6 +275,7 @@ def plot_global_aggregates(
     approach_hue=False,
     geometric_mean=False,
     clip_to_zero=True,
+    approach_split=False,
 ):
     set_general_plot_style()
 
@@ -312,6 +325,7 @@ def plot_global_aggregates(
             yline,
             approach_hue,
             geometric_mean,
+            approach_split,
         )
 
     _format(fig, axs, ymajorlocator, yminorlocator, approach_hue)

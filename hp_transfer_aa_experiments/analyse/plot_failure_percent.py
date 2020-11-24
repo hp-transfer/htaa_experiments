@@ -2,6 +2,8 @@ import argparse
 
 from pathlib import Path
 
+import numpy as np
+
 from hp_transfer_aa_experiments.analyse._plot_utils import plot_aggregates
 from hp_transfer_aa_experiments.analyse._plot_utils import plot_global_aggregates
 from hp_transfer_aa_experiments.analyse.read_results import load_data_to_df
@@ -30,11 +32,12 @@ def analyse_results(results_path, output_dir, reference_losses):
         # ["transfer_tpe_no_ttpe", "tpe"],
         # ["random", "tpe"],
         ["transfer_top_gp", "transfer_importance_gp"],
-        ["transfer_best_first_gp", "gp"],
-        ["transfer_intersection_model_gp_no_ra", "gp"],
+        ["transfer_intersection_model_gp_no_ra", "transfer_best_first_gp", "gp"],
     ]
-    for approach_a, approach_b in nan_checks:
-        data = df[(df.approach == approach_a) | (df.approach == approach_b)]
+    for approaches in nan_checks:
+        data = df[
+            np.logical_or.reduce([df.approach == approach for approach in approaches])
+        ]
         nan_percent = _df_to_nan_stats(
             data,
             [
@@ -48,11 +51,12 @@ def analyse_results(results_path, output_dir, reference_losses):
         plot_global_aggregates(
             nan_percent,
             output_dir,
-            f"global_nan_percent_{approach_a}_and_{approach_b}",
+            f"global_nan_percent_{'+'.join(approaches)}",
             yline=None,
             ylabel="Failed Runs [%]",
             xlabel="GP Evaluations for\nReference Objective [\#]",
-            approach_hue=True,
+            approach_split=len(approaches) == 2,
+            approach_hue=len(approaches) > 1,
         )
 
     nan_checks_detail = [
@@ -75,6 +79,7 @@ def analyse_results(results_path, output_dir, reference_losses):
                 ylabel="Failed Runs [%]",
                 xlabel="GP Evaluations for\nReference Objective [\#]",
                 approach_hue=True,
+                approach_split=True,
             )
 
 

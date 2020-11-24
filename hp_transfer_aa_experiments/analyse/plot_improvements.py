@@ -68,18 +68,21 @@ def analyse_results(results_path, output_dir):
     normed_checks = [
         # ["transfer_tpe_no_best_first", "transfer_tpe_no_ttpe"],
         # ["transfer_top", "transfer_importance"],
-        ["transfer_best_first_gp", "transfer_intersection_model_gp_no_ra"],
-        ["transfer_best_first_gp", "transfer_intersection_model_best_first_gp_no_ra"],
         ["transfer_top_gp", "transfer_importance_gp"],
+        [
+            "transfer_intersection_model_gp_no_ra",
+            "transfer_best_first_gp",
+            "transfer_intersection_model_best_first_gp_no_ra",
+        ],
     ]
     for approaches in normed_checks:
         data_dfs = [get_approach_data(df, approach) for approach in approaches]
         for data_df, approach in zip(data_dfs, approaches):
             data_df["approach"] = approach
         data_dfs = pd.concat(data_dfs)
-        data_dfs["10"] = data_dfs["10"].clip(lower=-100)
-        data_dfs["20"] = data_dfs["20"].clip(lower=-100)
-        data_dfs["40"] = data_dfs["40"].clip(lower=-100)
+        data_dfs["10"] = data_dfs["10"].clip(lower=-10)
+        data_dfs["20"] = data_dfs["20"].clip(lower=-10)
+        data_dfs["40"] = data_dfs["40"].clip(lower=-10)
         plot_global_aggregates(
             data_dfs,
             output_dir,
@@ -87,11 +90,19 @@ def analyse_results(results_path, output_dir):
             ylabel=ylabel,
             xlabel=r"Evaluations [\#]",
             yline=0,
-            approach_hue=len(approaches) == 2,
+            approach_hue=len(approaches) > 1,
             clip_to_zero=False,
+            approach_split=len(approaches) == 2,
         )
 
-    normed_checks_detail = []
+    normed_checks_detail = [
+        ["transfer_top_gp", "transfer_importance_gp"],
+        [
+            "transfer_intersection_model_gp_no_ra",
+            "transfer_best_first_gp",
+            "transfer_intersection_model_best_first_gp_no_ra",
+        ],
+    ]
     for runtype, df_runtype in df.groupby("runtype"):
         df_runtype = df_runtype.drop(columns=["runtype"])
         for approaches in normed_checks_detail:
@@ -101,6 +112,9 @@ def analyse_results(results_path, output_dir):
             for data_df, approach in zip(data_dfs, approaches):
                 data_df["approach"] = approach
             data_dfs = pd.concat(data_dfs)
+            data_dfs["10"] = data_dfs["10"].clip(lower=-10)
+            data_dfs["20"] = data_dfs["20"].clip(lower=-10)
+            data_dfs["40"] = data_dfs["40"].clip(lower=-10)
             plot_aggregates(
                 data_dfs,
                 output_dir,
@@ -109,6 +123,9 @@ def analyse_results(results_path, output_dir):
                 xlabel=r"Evaluations [\#]",
                 yline=0,
                 clip_to_zero=False,
+                approach_hue=len(approaches) > 1,
+                approach_split=len(approaches) == 2,
+                geometric_mean=False,
             )
 
 
