@@ -41,7 +41,7 @@ def _df_to_normed_performance(df):
         ["benchmark", "trajectory", "adjustment", "runtype"]
     )
 
-    baseline = df[df.approach == "gp"]
+    baseline = df[df.approach == "tpe2"]
     baseline = baseline.drop(columns=["approach"])
     baseline_grouped = baseline.groupby(
         ["benchmark", "trajectory", "adjustment", "runtype"]
@@ -63,16 +63,22 @@ def analyse_results(results_path, output_dir):
     df = _df_to_normed_performance(df)
 
     ylabel = r"""Improvement Over
-    GP [SD\textsubscript{GP} $+ \varepsilon]$"""
+    TPE [SD\textsubscript{GP} $+ \varepsilon]$"""
 
     normed_checks = [
         # ["transfer_tpe_no_best_first", "transfer_tpe_no_ttpe"],
         # ["transfer_top", "transfer_importance"],
-        ["transfer_top_gp", "transfer_importance_gp"],
+        # ["transfer_top_gp", "transfer_importance_gp"],
+        # [
+        #     "transfer_intersection_model_gp_no_ra",
+        #     "transfer_best_first_gp",
+        #     "transfer_intersection_model_best_first_gp_no_ra",
+        # ],
+        ["transfer_top", "transfer_importance"],
         [
-            "transfer_intersection_model_gp_no_ra",
-            "transfer_best_first_gp",
-            "transfer_intersection_model_best_first_gp_no_ra",
+            "transfer_tpe_no_best_first",
+            "transfer_tpe_no_ttpe",
+            "transfer_tpe",
         ],
     ]
     for approaches in normed_checks:
@@ -96,11 +102,17 @@ def analyse_results(results_path, output_dir):
         )
 
     normed_checks_detail = [
-        ["transfer_top_gp", "transfer_importance_gp"],
+        # ["transfer_top_gp", "transfer_importance_gp"],
+        # [
+        #     "transfer_intersection_model_gp_no_ra",
+        #     "transfer_best_first_gp",
+        #     "transfer_intersection_model_best_first_gp_no_ra",
+        # ],
+        ["transfer_top", "transfer_importance"],
         [
-            "transfer_intersection_model_gp_no_ra",
-            "transfer_best_first_gp",
-            "transfer_intersection_model_best_first_gp_no_ra",
+            "transfer_tpe_no_best_first",
+            "transfer_tpe_no_ttpe",
+            "transfer_tpe",
         ],
     ]
     for runtype, df_runtype in df.groupby("runtype"):

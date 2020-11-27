@@ -26,13 +26,10 @@ def analyse_results(results_path, output_dir, reference_losses):
     )
 
     nan_checks = [
-        # ["transfer_tpe", "tpe"],
-        # ["transfer_top", "transfer_importance"],
-        # ["transfer_tpe_no_best_first", "tpe"],
-        # ["transfer_tpe_no_ttpe", "tpe"],
-        # ["random", "tpe"],
-        ["transfer_top_gp", "transfer_importance_gp"],
-        ["transfer_intersection_model_gp_no_ra", "transfer_best_first_gp", "gp"],
+        # ["transfer_top_gp", "transfer_importance_gp"],
+        # ["transfer_intersection_model_gp_no_ra", "transfer_best_first_gp", "gp"],
+        ["transfer_top", "transfer_importance"],
+        ["transfer_tpe_no_best_first", "transfer_tpe_no_ttpe", "tpe2"],
     ]
     for approaches in nan_checks:
         data = df[
@@ -54,7 +51,7 @@ def analyse_results(results_path, output_dir, reference_losses):
             f"global_nan_percent_{'+'.join(approaches)}",
             yline=None,
             ylabel="Failed Runs [%]",
-            xlabel="GP Evaluations for\nReference Objective [\#]",
+            xlabel="TPE Evaluations for\nReference Objective [\#]",
             approach_split=len(approaches) == 2,
             approach_hue=len(approaches) > 1,
         )

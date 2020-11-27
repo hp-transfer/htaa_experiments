@@ -1,3 +1,4 @@
+import itertools
 import math
 
 from pathlib import Path
@@ -50,7 +51,9 @@ def get_approach_spelling(approach):
     if approach == "tpe":
         return "TPE"
     elif approach == "tpe2":
-        return "TPE2"
+        return "TPE"
+    elif approach == "tpe3":
+        return "TPE$_2$"
     elif approach == "transfer_tpe":
         return "T2PE"
     elif approach == "gp":
@@ -92,6 +95,7 @@ def get_runtype_spelling(runtype):
 
 def set_hue_approach_spelling(df):
     df["approach"].replace("tpe", "TPE", inplace=True)
+    df["approach"].replace("tpe2", "TPE", inplace=True)
     df["approach"].replace("gp", "GP", inplace=True)
     df["approach"].replace("transfer_tpe", "Best First + Transfer TPE", inplace=True)
     df["approach"].replace("transfer_top", "Only Optimize New", inplace=True)
@@ -100,11 +104,11 @@ def set_hue_approach_spelling(df):
     df["approach"].replace("transfer_tpe_no_ttpe", "Best First", inplace=True)
     df["approach"].replace("transfer_best_first_gp", "Best First", inplace=True)
     df["approach"].replace(
-        "transfer_intersection_model_gp_no_ra", "Transfer GP", inplace=True
+        "transfer_intersection_model_gp_no_ra", "Transfer GP/TPE", inplace=True
     )
     df["approach"].replace(
         "transfer_intersection_model_best_first_gp_no_ra",
-        "Best First + Transfer GP",
+        "Best First + Transfer GP/TPE",
         inplace=True,
     )
     df["approach"].replace("transfer_top_gp", "Only Optimize New", inplace=True)
@@ -256,10 +260,6 @@ def plot_aggregates(
     y1 = max(bbox.y1 for bbox in axs.viewLim) * 1.1
     axs.format(ylim=(y0, y1))
 
-    # if clip_to_zero:
-    #     for ax in axs:
-    #         ax.set_ylim(bottom=0)
-
     _save_fig(fig, output_dir, filename=filename)
 
 
@@ -332,4 +332,85 @@ def plot_global_aggregates(
     if clip_to_zero:
         for ax in axs:
             ax.set_ylim(bottom=0)
+    _save_fig(fig, output_dir, filename=filename)
+
+
+def plot_global_aggregates_stacked(
+    data,
+    data_second,
+    output_dir,
+    filename,
+    yline,
+    ylabel,
+    xlabel,
+    ymajorlocator=None,
+    yminorlocator=None,
+    approach_hue=False,
+    geometric_mean=False,
+    clip_to_zero=True,
+    approach_split=False,
+):
+    set_general_plot_style()
+
+    data = data.reset_index()
+    groups = data.groupby("runtype")
+
+    data_second = data_second.reset_index()
+    groups_second = data_second.groupby("runtype")
+
+    num_plot_per_row = 3
+    num_rows = 2
+
+    figsize = (5.35, 4.6 if approach_hue else 4.2)
+    fig, axs = proplot.subplots(
+        figsize=figsize,
+        nrows=num_rows,
+        ncols=num_plot_per_row,
+        share=3,
+        spanx=True,
+        spany=False,
+    )
+    for (runtype, df), ax in zip(itertools.chain(groups, groups_second), axs):
+        if approach_hue:
+            df = set_hue_approach_spelling(df)
+            grouped_df = df.groupby(["benchmark", "adjustment", "approach"])
+        else:
+            grouped_df = df.groupby(["benchmark", "adjustment"])
+
+        if geometric_mean:
+            benchmark_means = grouped_df.apply(lambda x: x.prod().pow(1 / len(x)))
+            # mean_mean = benchmark_means.prod().pow(1/len(benchmark_means))
+            # print(mean_mean)
+        else:
+            benchmark_means = grouped_df.mean()
+
+        if approach_hue:
+            benchmark_means = benchmark_means.reset_index().set_index(
+                ["benchmark", "adjustment"]
+            )
+            benchmark_means = pd.melt(benchmark_means, id_vars=["approach"])
+        else:
+            benchmark_means = pd.melt(benchmark_means)
+
+        _plot_violins(
+            ax,
+            benchmark_means,
+            get_runtype_spelling(runtype)
+            if (ax.number - 1) // num_plot_per_row == 0
+            else None,
+            ylabel[(ax.number - 1) // num_plot_per_row],
+            xlabel,
+            yline,
+            approach_hue,
+            geometric_mean,
+            approach_split,
+        )
+
+    _format(fig, axs, ymajorlocator, yminorlocator, approach_hue)
+    if clip_to_zero:
+        y0 = 0
+    else:
+        y0 = min(bbox.y0 for bbox in axs.viewLim)
+    y1 = max(bbox.y1 for bbox in axs.viewLim) * 1.1
+    axs.format(ylim=(y0, y1))
     _save_fig(fig, output_dir, filename=filename)
