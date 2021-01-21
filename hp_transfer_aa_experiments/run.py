@@ -18,6 +18,7 @@ from hp_transfer_optimizers.core import nameserver as hpns
 from hp_transfer_optimizers.core import result as result_utils
 from hp_transfer_optimizers.core.worker import Worker
 from hp_transfer_optimizers.gp import GP
+from hp_transfer_optimizers.gp_cond import GPCond
 from hp_transfer_optimizers.random_search import RandomSearch
 from hp_transfer_optimizers.tpe import TPE
 from hp_transfer_optimizers.transfer_importance import TransferImportance
@@ -70,7 +71,8 @@ def _run_on_task_batch(
     trials_until_loss,
     args,
 ):
-    previous_results = result_trajectory if args.approach.startswith("transfer") else None
+    do_transfer = args.approach.startswith("transfer") or args.approach == "gp_cond"
+    previous_results = result_trajectory if do_transfer else None
     result_batch = result_utils.BatchResult(train_step, configspace)
     for task in task_batch:
         logger.info(f"Running on {run_mode} task {task.identifier}")
@@ -193,6 +195,8 @@ class _HPOWorker(Worker):
             self._task = self._benchmark.get_task_from_identifier(
                 task_identifier, development_stage
             )
+        if "development_step" in config:
+            del config["development_step"]
         return self._task.evaluate(config)
 
 
@@ -276,6 +280,8 @@ def _get_optimizer(args, **core_master_kwargs):
         return TransferTPE(
             **core_master_kwargs, use_gp=True, best_first=True, do_ttpe=False
         )
+    elif args.approach == "gp_cond":
+        return GPCond(**core_master_kwargs)
     else:
         raise ValueError
 
