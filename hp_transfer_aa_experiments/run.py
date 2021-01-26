@@ -56,24 +56,43 @@ def _get_trial_parameters(args, reference_losses, step):
     return trials_per_task, trials_until_loss
 
 
+def _write_batch_result(args, result_batch):
+    batch_result_row = get_batch_result_row(
+        args.benchmark.name,
+        args.runtype.dim_factor_pre_adjustment,
+        args.approach,
+        args.benchmark.benchmark.trajectory_id,
+        args.benchmark.benchmark.adjustment_id,
+        args.run_id,
+        result_batch,
+    )
+    result_path = Path(
+        hydra.utils.to_absolute_path("results"),
+        args.experiment_group,
+        f"results/{args.experiment_name.replace('/', ',')}.csv",
+    )
+    result_path.parent.mkdir(exist_ok=True, parents=True)
+    with result_path.open("a") as result_stream:
+        result_stream.write(
+            "\t".join([str(value) for value in batch_result_row]) + "\n"
+        )
+
+
 def _run_on_task_batch(
     optimizer,
     task_batch,
     configspace,
-    train_step,
+    step,
     result_trajectory,
-    run_mode,
     trials_per_task,
     trials_until_loss,
     args,
 ):
-    do_transfer = (
-        args.approach.name.startswith("transfer") or args.approach.name == "gp_cond"
-    )
+    do_transfer = args.approach.name.startswith("transfer")
     previous_results = result_trajectory if do_transfer else None
-    result_batch = result_utils.BatchResult(train_step, configspace)
+    result_batch = result_utils.BatchResult(step, configspace)
     for task in task_batch:
-        logger.info(f"Running on {run_mode} task {task.identifier}")
+        logger.info(f"Running on task {task.identifier}")
         task_result = optimizer.run(
             configspace=configspace,
             task=task,
@@ -83,29 +102,8 @@ def _run_on_task_batch(
         )
         result_batch.insert(task_result, task)
 
-    # write_path = Path(run_mode.lower())
-    # result_batch.write(write_path)
-
-    if train_step > 1:
-        batch_result_row = get_batch_result_row(
-            args.benchmark.name,
-            args.runtype.dim_factor_pre_adjustment,
-            args.approach,
-            args.benchmark.benchmark.trajectory_id,
-            args.benchmark.benchmark.adjustment_id,
-            args.run_id,
-            result_batch,
-        )
-        result_path = Path(
-            hydra.utils.to_absolute_path("results"),
-            args.experiment_group,
-            f"results/{args.experiment_name.replace('/', ',')}.csv",
-        )
-        result_path.parent.mkdir(exist_ok=True, parents=True)
-        with result_path.open("a") as result_stream:
-            result_stream.write(
-                "\t".join([str(value) for value in batch_result_row]) + "\n"
-            )
+    if step > 1:
+        _write_batch_result(args, result_batch)
     return result_batch
 
 
@@ -119,46 +117,16 @@ def _train_and_eval(optimizer, benchmark, args):
         if args.runtype.type == "reference" and step == 1:
             continue
 
-        logger.info(f"Train ------- step {step :04d}")
+        logger.info(f"Step ------- {step :04d}")
         trials_per_task, trials_until_loss = _get_trial_parameters(
             args, reference_losses, step
         )
         logger.info(f"Using configspace\n{configspace}".rstrip())
 
-        # Training
-        batch_result = _run_on_task_batch(
-            optimizer,
-            train_batch,
-            configspace,
-            step,
-            result_trajectory,
-            "train",
-            trials_per_task,
-            trials_until_loss,
-            args,
-        )
+        batch_result = _run_on_task_batch(optimizer, train_batch, configspace, step,
+                                          result_trajectory, trials_per_task,
+                                          trials_until_loss, args)
         result_trajectory.insert(batch_result)
-
-        # Evaluation
-        do_evaluate = (
-            benchmark.eval_batch is not None
-            and args.runtype.meta_eval_interval > 0
-            and step % args.runtype.meta_eval_interval == 0
-        )
-        if do_evaluate:
-            logger.info(f"Eval ------- step {step :04d}")
-            _run_on_task_batch(
-                optimizer,
-                benchmark.eval_batch,
-                configspace,
-                step,
-                result_trajectory,
-                "eval",
-                trials_per_task,
-                trials_until_loss,
-                args,
-            )
-    # result_trajectory.write("train")
 
 
 class _HPOWorker(Worker):
