@@ -1,3 +1,4 @@
+import contextlib
 import logging
 import logging.config
 import random
@@ -10,17 +11,16 @@ import numpy as np
 import yaml
 
 from gitinfo import gitinfo
-
-import hp_transfer_benchmarks
-import hp_transfer_optimizers
 from omegaconf import OmegaConf
-import contextlib
 
+import hp_transfer_benchmarks  # pylint: disable=unused-import
+import hp_transfer_optimizers  # pylint: disable=unused-import
 
 from hp_transfer_aa_experiments.analyse.read_results import get_batch_result_row
 from hp_transfer_optimizers.core import nameserver as hpns
 from hp_transfer_optimizers.core import result as result_utils
 from hp_transfer_optimizers.core.worker import Worker
+
 
 logger = logging.getLogger("hp_transfer_aa_experiments.run")
 
@@ -67,7 +67,9 @@ def _run_on_task_batch(
     trials_until_loss,
     args,
 ):
-    do_transfer = args.approach.name.startswith("transfer") or args.approach.name == "gp_cond"
+    do_transfer = (
+        args.approach.name.startswith("transfer") or args.approach.name == "gp_cond"
+    )
     previous_results = result_trajectory if do_transfer else None
     result_batch = result_utils.BatchResult(train_step, configspace)
     for task in task_batch:
