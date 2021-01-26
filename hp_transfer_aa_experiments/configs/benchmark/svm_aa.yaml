@@ -1,6 +1,0 @@
-benchmark:
-  benchmark: svm_aa
-  adjustment_id: a
-  trajectory_id: 0
-  num_eval_tasks: 10
-  algorithm: svm   # svm glmnet xgb

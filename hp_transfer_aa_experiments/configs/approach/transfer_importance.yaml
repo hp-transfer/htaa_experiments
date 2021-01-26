@@ -1,1 +1,6 @@
-approach: transfer_importance
+# @package _group_
+name: transfer_importance_gp
+approach:
+  _target_: hp_transfer_optimizers.TransferImportance
+  use_gp: True
+  run_id: ${run_id}

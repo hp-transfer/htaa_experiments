@@ -1,8 +1,8 @@
 defaults:
   - hydra/job_logging: bohb
   - hydra/output: bohb
-  - benchmark: fcnet_aa
-  - approach: transfer_tpe
+  - benchmark: fcnet
+  - approach: gp
   - runtype: eval_dim
 
 experiment_group: test

@@ -1,1 +1,7 @@
-approach: transfer_top
+# @package _group_
+name: transfer_top_gp
+approach:
+  _target_: hp_transfer_optimizers.TransferTop
+  use_gp: True
+  run_id: ${run_id}
+

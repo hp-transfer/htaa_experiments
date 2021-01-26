@@ -1,0 +1,8 @@
+# @package _group_
+name: svm
+benchmark:
+  _target_: hp_transfer_benchmarks.openml.OpenMLBenchmark
+  adjustment_id: a
+  trajectory_id: 0
+  num_eval_tasks: 10
+  algorithm: svm

@@ -1,0 +1,9 @@
+# @package _group_
+name: fcnet
+benchmark:
+  _target_: hp_transfer_benchmarks.fcnet.FCNetBenchmark
+  data_path: data/fcnet
+  adjustment_id: a
+  trajectory_id: protein
+
+

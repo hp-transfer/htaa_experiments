@@ -1,4 +1,6 @@
+# @package _group_
+name: nas
 benchmark:
-  benchmark: nas
+  _target_: hp_transfer_benchmarks.nas201.NASBenchmark
   adjustment_id: a
   trajectory_id: cifar

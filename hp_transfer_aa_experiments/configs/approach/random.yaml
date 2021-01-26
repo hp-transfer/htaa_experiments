@@ -1,1 +1,5 @@
-approach: random
+# @package _group_
+name: random
+approach:
+  _target_: hp_transfer_optimizers.RandomSearch
+  run_id: ${run_id}

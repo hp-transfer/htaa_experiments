@@ -12,19 +12,15 @@ import yaml
 from gitinfo import gitinfo
 
 import hp_transfer_benchmarks
+import hp_transfer_optimizers
+from omegaconf import OmegaConf
+import contextlib
+
 
 from hp_transfer_aa_experiments.analyse.read_results import get_batch_result_row
 from hp_transfer_optimizers.core import nameserver as hpns
 from hp_transfer_optimizers.core import result as result_utils
 from hp_transfer_optimizers.core.worker import Worker
-from hp_transfer_optimizers.gp import GP
-from hp_transfer_optimizers.gp_cond import GPCond
-from hp_transfer_optimizers.random_search import RandomSearch
-from hp_transfer_optimizers.tpe import TPE
-from hp_transfer_optimizers.transfer_importance import TransferImportance
-from hp_transfer_optimizers.transfer_top import TransferTop
-from hp_transfer_optimizers.transfer_tpe import TransferTPE
-
 
 logger = logging.getLogger("hp_transfer_aa_experiments.run")
 
@@ -71,7 +67,7 @@ def _run_on_task_batch(
     trials_until_loss,
     args,
 ):
-    do_transfer = args.approach.startswith("transfer") or args.approach == "gp_cond"
+    do_transfer = args.approach.name.startswith("transfer") or args.approach.name == "gp_cond"
     previous_results = result_trajectory if do_transfer else None
     result_batch = result_utils.BatchResult(train_step, configspace)
     for task in task_batch:
@@ -90,11 +86,11 @@ def _run_on_task_batch(
 
     if train_step > 1:
         batch_result_row = get_batch_result_row(
-            args.benchmark.benchmark,
+            args.benchmark.name,
             args.runtype.dim_factor_pre_adjustment,
             args.approach,
-            args.benchmark.trajectory_id,
-            args.benchmark.adjustment_id,
+            args.benchmark.benchmark.trajectory_id,
+            args.benchmark.benchmark.adjustment_id,
             args.run_id,
             result_batch,
         )
@@ -213,79 +209,6 @@ def _run_worker(args, benchmark, working_directory):
     w.run(background=False)
 
 
-def _get_optimizer(args, **core_master_kwargs):
-    if args.approach == "transfer_tpe":
-        return TransferTPE(
-            **core_master_kwargs,
-            range_adjustment=False,
-        )
-    elif args.approach == "transfer_tpe_no_best_first":
-        return TransferTPE(
-            **core_master_kwargs,
-            best_first=False,
-            range_adjustment=False,
-        )
-    elif args.approach == "transfer_tpe_no_ttpe":
-        return TransferTPE(
-            **core_master_kwargs,
-            do_ttpe=False,
-            best_first=True,
-            range_adjustment=False,
-        )
-    elif args.approach == "tpe":
-        return TPE(**core_master_kwargs)
-    elif args.approach == "tpe2":
-        return TPE(**core_master_kwargs)
-    elif args.approach == "tpe3":
-        return TPE(**core_master_kwargs)
-    elif args.approach == "random":
-        return RandomSearch(**core_master_kwargs)
-    elif args.approach == "transfer_top":
-        return TransferTop(**core_master_kwargs)
-    elif args.approach == "transfer_importance":
-        return TransferImportance(**core_master_kwargs)
-    elif args.approach == "transfer_top_gp":
-        return TransferTop(**core_master_kwargs, use_gp=True)
-    elif args.approach == "transfer_importance_gp":
-        return TransferImportance(**core_master_kwargs, use_gp=True)
-    elif args.approach == "gp":
-        return GP(**core_master_kwargs)
-    elif args.approach == "gp2":
-        return GP(**core_master_kwargs)
-    elif args.approach == "transfer_intersection_model_best_first_gp":
-        return TransferTPE(
-            **core_master_kwargs, best_first=True, use_gp=True, do_ttpe=True
-        )
-    elif args.approach == "transfer_intersection_model_best_first_gp_no_ra":
-        return TransferTPE(
-            **core_master_kwargs,
-            best_first=True,
-            use_gp=True,
-            do_ttpe=True,
-            range_adjustment=False,
-        )
-    elif args.approach == "transfer_intersection_model_gp":
-        return TransferTPE(
-            **core_master_kwargs, best_first=False, use_gp=True, do_ttpe=True
-        )
-    elif args.approach == "transfer_intersection_model_gp_no_ra":
-        return TransferTPE(
-            **core_master_kwargs,
-            best_first=False,
-            use_gp=True,
-            do_ttpe=True,
-            range_adjustment=False,
-        )
-    elif args.approach == "transfer_best_first_gp":
-        return TransferTPE(
-            **core_master_kwargs, use_gp=True, best_first=True, do_ttpe=False
-        )
-    elif args.approach == "gp_cond":
-        return GPCond(**core_master_kwargs)
-    else:
-        raise ValueError
-
-
 def _run_master(args, benchmark, working_directory):
     nameserver = hpns.NameServer(
         run_id=args.run_id,
@@ -306,9 +229,8 @@ def _run_master(args, benchmark, working_directory):
     w.run(background=True)
 
     # Create an optimizer
-    optimizer = _get_optimizer(
-        args=args,
-        run_id=args.run_id,
+    optimizer = hydra.utils.instantiate(
+        args.approach.approach,
         host=ns_host,
         nameserver=ns_host,
         nameserver_port=ns_port,
@@ -323,29 +245,6 @@ def _run_master(args, benchmark, working_directory):
         nameserver.shutdown()
 
 
-def _get_benchmark(args):
-    if args.benchmark.benchmark in {"xgb_aa", "svm_aa"}:
-        return hp_transfer_benchmarks.openml.OpenMLBenchmark(
-            trajectory_id=args.benchmark.trajectory_id,
-            adjustment_id=args.benchmark.adjustment_id,
-            num_eval_tasks=args.benchmark.num_eval_tasks,
-            algorithm=args.benchmark.algorithm,
-        )
-    elif args.benchmark.benchmark == "fcnet_aa":
-        return hp_transfer_benchmarks.fcnet.FCNetBenchmark(
-            trajectory_id=args.benchmark.trajectory_id,
-            adjustment_id=args.benchmark.adjustment_id,
-            data_path=hydra.utils.to_absolute_path(args.benchmark.data_path),
-        )
-    elif args.benchmark.benchmark == "nas":
-        return hp_transfer_benchmarks.nas201.NASBenchmark(
-            trajectory_id=args.benchmark.trajectory_id,
-            adjustment_id=args.benchmark.adjustment_id,
-        )
-    else:
-        raise ValueError
-
-
 def _set_seeds(seed):
     random.seed(seed)
     np.random.seed(seed)
@@ -355,35 +254,33 @@ def _set_seeds(seed):
     # tf.random.set_seed(seed)
 
 
-@hydra.main(config_path="configs/run.yaml")
+@hydra.main(config_path="configs", config_name="run")
 def run(args):
-    working_directory = Path().cwd()  # https://hydra.cc/docs/tutorial/working_directory
-    logger.info(f"Using working_directory={working_directory}")
+    _set_seeds(args.seed)
+    working_directory = Path().cwd()
 
     # Log general information
-    try:
+    logger.info(f"Using working_directory={working_directory}")
+    with contextlib.suppress(TypeError):
         git_info = gitinfo.get_git_info()
         logger.info(f"Commit hash: {git_info['commit']}")
         logger.info(f"Commit date: {git_info['author_date']}")
-    except TypeError:
-        pass
-    logger.info(f"Arguments:\n\n{args.pretty()}")
+    logger.info(f"Arguments:\n{OmegaConf.to_yaml(args)}")
+
+    # Construct benchmark
+    if "data_path" in args.benchmark.benchmark:
+        args.benchmark.benchmark.data_path = hydra.utils.to_absolute_path(
+            args.benchmark.benchmark.data_path
+        )
+    benchmark = hydra.utils.instantiate(args.benchmark.benchmark)
 
     # Actually run
-    _set_seeds(args.seed)
-    benchmark = _get_benchmark(args)
     if args.worker_id == 0:
         _run_master(args, benchmark, working_directory)
     else:
         _run_worker(args, benchmark, working_directory)
-
     logger.info(f"Run finished")
 
 
 if __name__ == "__main__":
-    try:
-        run()  # pylint: disable=no-value-for-parameter
-    except KeyboardInterrupt as e:
-        raise e
-    except Exception as e:
-        logger.exception(e)
+    run()  # pylint: disable=no-value-for-parameter

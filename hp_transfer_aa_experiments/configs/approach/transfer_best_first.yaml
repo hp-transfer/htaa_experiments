@@ -1,0 +1,8 @@
+# @package _group_
+name: transfer_best_first
+approach:
+  _target_: hp_transfer_optimizers.TransferTPE
+  use_gp: True
+  best_first: True
+  do_ttpe: False
+  run_id: ${run_id}
