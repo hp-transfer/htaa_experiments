@@ -1,0 +1,32 @@
+defaults:
+  - hydra/job_logging: bohb
+  - hydra/launcher: submitit_slurm
+  - benchmark: ???
+  - approach: ???
+  - runtype: ???
+
+seed: ???
+run_id: ${seed}
+experiment_group: ???
+experiment_name: ${benchmark.name}/${runtype.type}/${approach.name}/trajectory_id_${benchmark.benchmark.trajectory_id}/adjustment_id_${benchmark.benchmark.adjustment_id}/id_${run_id}
+worker_id: 0
+nic_name: eth0
+reference_losses_path: hp_transfer_aa_experiments/reference_losses.yaml
+
+hydra:
+  job:
+    name: ${benchmark.name}_${approach.name}
+
+  sweep:
+    dir: results/${experiment_group}
+    subdir: ${experiment_name}
+
+  launcher:
+    timeout_min: 2
+    cpus_per_task: 1
+    gpus_per_node: 0
+    tasks_per_node: 1
+    mem_gb: 8
+    nodes: 1
+    partition: ???
+    array_parallelism: ???

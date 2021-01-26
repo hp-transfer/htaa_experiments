@@ -1,6 +1,5 @@
 defaults:
-  - hydra/job_logging: bohb
-  - hydra/output: bohb
+  - hydra/job_logging: bohb_full
   - benchmark: fcnet
   - approach: gp
   - runtype: eval_dim
@@ -12,3 +11,7 @@ worker_id: 0
 seed: 2
 nic_name: lo
 reference_losses_path: hp_transfer_aa_experiments/reference_losses.yaml
+
+hydra:
+  run:
+    dir: results/${experiment_group}/${experiment_name}

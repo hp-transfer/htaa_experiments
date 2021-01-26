@@ -1,4 +1,0 @@
-# @package _global_
-hydra:
-  run:
-    dir: results/${experiment_group}/${experiment_name}
