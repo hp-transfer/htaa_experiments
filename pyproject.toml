@@ -1,7 +1,6 @@
-
 [build-system]
-requires = ["poetry>=1.0.10"]
-build-backend = "poetry.masonry.api"
+requires = ["poetry>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "hp_transfer_aa_experiments"
@@ -24,7 +23,7 @@ hp-transfer-optimizers = { path = "../ht_optimizers/", develop = true }
 proplot = "^0.6.4"
 lockfile = "^0.12.2"
 pyDOE = "^0.3.8"
-hydra-submitit-launcher = "^1.0.1"
+hydra-script-launcher = {git = "https://github.com/DaStoll/hydra_script_launcher.git"}
 
 [tool.poetry.dev-dependencies]
 jupyter = "^1.0"
