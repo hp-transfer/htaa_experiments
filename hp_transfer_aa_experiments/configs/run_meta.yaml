@@ -14,19 +14,19 @@ nic_name: eth0
 reference_losses_path: hp_transfer_aa_experiments/reference_losses.yaml
 
 hydra:
-  job:
-    name: ${benchmark.name}_${approach.name}
-
   sweep:
     dir: results/${experiment_group}
     subdir: ${experiment_name}
 
   launcher:
-    timeout_min: 2
+    pre_execute_command: source ~/.conda/bin/activate htaa
+    execute_command: python hp_transfer_aa_experiments.run.py
+    time: 0-02:00
     cpus_per_task: 1
-    gpus_per_node: 0
-    tasks_per_node: 1
-    mem_gb: 8
-    nodes: 1
+    gpus: 0
+    mem_per_cpu: 8000
+    job_name: ${benchmark.name}_${approach.name}
     partition: ???
-    array_parallelism: ???
+    # max_parallel_jobs:
+    error: ${hydra.sweep.dir}/cluster_oe/%A_%x_%t.oe
+    output: ${hydra.sweep.dir}/cluster_oe/%A_%x_%t.oe
