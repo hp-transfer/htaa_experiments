@@ -1,4 +1,3 @@
-# @package _group_
 name: nas
 benchmark:
   _target_: hp_transfer_benchmarks.nas201.NASBenchmark

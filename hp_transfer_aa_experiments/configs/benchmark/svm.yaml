@@ -1,4 +1,3 @@
-# @package _group_
 name: svm
 benchmark:
   _target_: hp_transfer_benchmarks.openml.OpenMLBenchmark

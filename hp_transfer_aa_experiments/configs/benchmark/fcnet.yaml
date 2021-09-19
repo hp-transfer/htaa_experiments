@@ -1,4 +1,3 @@
-# @package _group_
 name: fcnet
 benchmark:
   _target_: hp_transfer_benchmarks.fcnet.FCNetBenchmark

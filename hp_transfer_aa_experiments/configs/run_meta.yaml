@@ -1,9 +1,10 @@
 defaults:
-  - hydra/job_logging: bohb
-  - hydra/launcher: submitit_slurm
   - benchmark: ???
   - approach: ???
   - runtype: ???
+  - _self_
+  - override hydra/job_logging: bohb
+  - override hydra/launcher: script
 
 seed: ???
 run_id: ${seed}
@@ -13,20 +14,26 @@ worker_id: 0
 nic_name: eth0
 reference_losses_path: hp_transfer_aa_experiments/reference_losses.yaml
 
+cluster:
+  partition: ???
+  max_array_tasks: 100
+
 hydra:
+  launcher:
+    pre_command: "mkdir ${hydra.sweep.dir}/cluster_oe -p"
+    batch_script_template: |
+      #!/bin/bash
+      #SBATCH --time 0-01:00
+      #SBATCH --job-name test
+      #SBATCH --output ${hydra.sweep.dir}/cluster_oe/%A_%x_%t.oe
+      #SBATCH --error ${hydra.sweep.dir}/cluster_oe/%A_%x_%t.oe
+      #SBATCH --array 1-<PUT_NUM_ARGS>%${cluster.max_array_tasks}
+      #SBATCH --partition ${cluster.partition}
+      <PUT_ARGS>
+      conda activate script
+      python example/my_app.py <PUT_DOLLAR>{ARGS[$(($SLURM_ARRAY_TASK_ID-1))]}
   sweep:
     dir: results/${experiment_group}
     subdir: ${experiment_name}
-
-  launcher:
-    pre_execute_command: source ~/.conda/bin/activate htaa
-    execute_command: python hp_transfer_aa_experiments.run.py
-    time: 0-02:00
-    cpus_per_task: 1
-    gpus: 0
-    mem_per_cpu: 8000
-    job_name: ${benchmark.name}_${approach.name}
-    partition: ???
-    # max_parallel_jobs:
-    error: ${hydra.sweep.dir}/cluster_oe/%A_%x_%t.oe
-    output: ${hydra.sweep.dir}/cluster_oe/%A_%x_%t.oe
+  run:
+    dir: ${hydra.sweep.dir}/${hydra.sweep.subdir}

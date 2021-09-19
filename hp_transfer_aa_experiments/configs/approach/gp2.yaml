@@ -1,4 +1,3 @@
-# @package _group_
 name: gp2
 approach:
   _target_: hp_transfer_optimizers.GP

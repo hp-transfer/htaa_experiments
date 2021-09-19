@@ -1,4 +1,3 @@
-# @package _group_
 name: transfer_cond
 approach:
   _target_: hp_transfer_optimizers.GPCond

@@ -1,4 +1,3 @@
-# @package _group_
 name: random
 approach:
   _target_: hp_transfer_optimizers.RandomSearch

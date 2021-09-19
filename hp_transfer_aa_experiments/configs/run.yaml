@@ -1,8 +1,9 @@
 defaults:
-  - hydra/job_logging: bohb_full
   - benchmark: fcnet
   - approach: gp
   - runtype: eval_dim
+  - _self_
+  - override hydra/job_logging: bohb_full
 
 experiment_group: test
 experiment_name: test_${run_id}
