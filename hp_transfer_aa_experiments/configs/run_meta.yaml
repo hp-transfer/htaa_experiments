@@ -11,7 +11,7 @@ run_id: ${seed}
 experiment_group: ???
 experiment_name: ${benchmark.name}/${runtype.type}/${approach.name}/trajectory_id_${benchmark.benchmark.trajectory_id}/adjustment_id_${benchmark.benchmark.adjustment_id}/id_${run_id}
 worker_id: 0
-nic_name: eth0
+nic_name: lo
 reference_losses_path: hp_transfer_aa_experiments/reference_losses.yaml
 
 cluster:
@@ -30,8 +30,8 @@ hydra:
       #SBATCH --array 1-<PUT_NUM_ARGS>%${cluster.max_array_tasks}
       #SBATCH --partition ${cluster.partition}
       <PUT_ARGS>
-      conda activate script
-      python example/my_app.py <PUT_DOLLAR>{ARGS[$(($SLURM_ARRAY_TASK_ID-1))]}
+      conda activate htaa_imcl
+      python -m hp_transfer_aa_experiments.run --config-name run_meta <PUT_DOLLAR>{ARGS[$(($SLURM_ARRAY_TASK_ID-1))]}
   sweep:
     dir: results/${experiment_group}
     subdir: ${experiment_name}

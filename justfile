@@ -50,13 +50,15 @@ submit experiment_group benchmark runtypes approaches trajectory_ids adjustment_
   #!/bin/bash
   set -e  # Stop on first failure
 
-  python -m hp_transfer_aa_experiments.run.py \
+  python -m hp_transfer_aa_experiments.run \
+    experiment_group={{experiment_group}} \
     benchmark={{benchmark}} \
     runtype={{runtypes}} \
     approach={{approaches}} \
-    trajectory_ids={{trajectory_ids}} \
+    benchmark.benchmark.trajectory_id={{trajectory_ids}} \
     benchmark.benchmark.adjustment_id={{adjustment_ids}} \
-    parition={{partition}} \
     seed=range\(0,{{repeats}}\) \
-    max_jobs={{max_parallel_jobs}} \
-    # todo config name
+    cluster.partition={{partition}} \
+    cluster.max_array_tasks={{max_parallel_jobs}} \
+    --config-name run_meta \
+    --multirun
