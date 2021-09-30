@@ -23,7 +23,7 @@ poetry install
 │   └── <RUNTYPE>                                          <<  Each type of run gets own folder
 │      └── <APPROACH>/                                     <<  Each approach gets own folder
 │         └── trajectory_id_<ID>/                          <<  Each trajectory gets own folder
-│            └── adjsutment_id_<ID>/                       <<  Each adjustment type gets own folder
+│            └── adjustment_id_<ID>/                       <<  Each adjustment type gets own folder
 │                └── repeat_<REPETITION>/                  <<  Each repetition gets own folder
 │                    ├── .hydra/                           <<  Exact configuration files used in this run
 │                    ├── eval/                             <<  Generalization results per step
