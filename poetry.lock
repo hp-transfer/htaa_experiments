@@ -424,11 +424,11 @@ codestyle = ["pycodestyle", "flake8", "pylint"]
 ml_mfbb = ["tqdm", "pandas (==1.2.4)", "scikit-learn (==0.24.2)", "openml (==0.12.2)", "xgboost (==1.3.1)"]
 ml_tabular_benchmarks = ["tqdm", "pandas (==1.2.4)", "scikit-learn (==0.24.2)", "openml (==0.12.2)", "xgboost (==1.3.1)"]
 nasbench_101 = ["tensorflow (==1.15.0)", "tqdm"]
-nasbench_101_example = ["torch (>=1.2.0,<=1.5.1)", "torchvision (>=0.4.0)", "nasbench @ git+https://github.com/google-research/nasbench@master", "nas-benchmarks @ git+https://github.com/automl/nas_benchmarks@master"]
+nasbench_101_example = ["torch (>=1.2.0,<=1.5.1)", "torchvision (>=0.4.0)", "nasbench", "nas-benchmarks"]
 nasbench_1shot1 = ["tensorflow (==1.15.0)", "matplotlib", "seaborn", "networkx", "tqdm"]
 outlier_detection = ["torch (==1.9.0)", "pytorch-lightning (==1.3.8)", "scikit-learn (==0.24.2)"]
 paramnet = ["tqdm", "scikit-learn (==0.23.2)"]
-pybnn = ["Theano (==1.0.5)", "sgmcmc @ git+https://github.com/automl/sgmcmc@master", "Lasagne @ git+https://github.com/Lasagne/Lasagne@master"]
+pybnn = ["Theano (==1.0.5)", "sgmcmc", "lasagne"]
 pytest = ["pytest (>=4.6)", "pytest-cov"]
 svm = ["pandas (>=0.22.2,<0.24.2)", "openml (==0.10.2)", "scikit-learn (>=0.18.1)"]
 tabular_benchmarks = ["tensorflow (==1.15.0)"]
@@ -1417,6 +1417,17 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "pyupgrade"
+version = "2.29.0"
+description = "A tool to automatically upgrade syntax for newer versions."
+category = "main"
+optional = false
+python-versions = ">=3.6.1"
+
+[package.dependencies]
+tokenize-rt = ">=3.2.0"
+
+[[package]]
 name = "pywin32"
 version = "301"
 description = "Python for Window Extensions"
@@ -1711,6 +1722,14 @@ python-versions = ">= 3.5"
 test = ["pytest", "pathlib2"]
 
 [[package]]
+name = "tokenize-rt"
+version = "4.1.0"
+description = "A wrapper around the stdlib `tokenize` which roundtrips."
+category = "main"
+optional = false
+python-versions = ">=3.6.1"
+
+[[package]]
 name = "toml"
 version = "0.10.2"
 description = "Python Library for Tom's Obvious, Minimal Language"
@@ -1836,7 +1855,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<3.8"  # <3.8 comes from HPOBench
-content-hash = "f9a1e3ceb2b6ecef6491dc3669692eae2d35b1392c44fbefdbccf3b1b7816d05"
+content-hash = "f69192327f4ddd80ce92f5de63f7a58ce41854fa4adb364c788679f83a4ef4ef"
 
 [metadata.files]
 antlr4-python3-runtime = [
@@ -2694,6 +2713,10 @@ pytz = [
     {file = "pytz-2021.1-py2.py3-none-any.whl", hash = "sha256:eb10ce3e7736052ed3623d49975ce333bcd712c7bb19a58b9e2089d4057d0798"},
     {file = "pytz-2021.1.tar.gz", hash = "sha256:83a4a90894bf38e243cf052c8b58f381bfe9a7a483f6a9cab140bc7f702ac4da"},
 ]
+pyupgrade = [
+    {file = "pyupgrade-2.29.0-py2.py3-none-any.whl", hash = "sha256:04938c7e8e4e8b476ae2b727306ecfaea95a83b707acbe6929864100dd6d9701"},
+    {file = "pyupgrade-2.29.0.tar.gz", hash = "sha256:27bfbc38854a40a70767ef6cbf3bf133c5472557905f0f9fe7ba5f58975701e4"},
+]
 pywin32 = [
     {file = "pywin32-301-cp35-cp35m-win32.whl", hash = "sha256:93367c96e3a76dfe5003d8291ae16454ca7d84bb24d721e0b74a07610b7be4a7"},
     {file = "pywin32-301-cp35-cp35m-win_amd64.whl", hash = "sha256:9635df6998a70282bd36e7ac2a5cef9ead1627b0a63b17c731312c7a0daebb72"},
@@ -2938,6 +2961,10 @@ terminado = [
 testpath = [
     {file = "testpath-0.5.0-py3-none-any.whl", hash = "sha256:8044f9a0bab6567fc644a3593164e872543bb44225b0e24846e2c89237937589"},
     {file = "testpath-0.5.0.tar.gz", hash = "sha256:1acf7a0bcd3004ae8357409fc33751e16d37ccc650921da1094a86581ad1e417"},
+]
+tokenize-rt = [
+    {file = "tokenize_rt-4.1.0-py2.py3-none-any.whl", hash = "sha256:b37251fa28c21e8cce2e42f7769a35fba2dd2ecafb297208f9a9a8add3ca7793"},
+    {file = "tokenize_rt-4.1.0.tar.gz", hash = "sha256:ab339b5ff829eb5e198590477f9c03c84e762b3e455e74c018956e7e326cbc70"},
 ]
 toml = [
     {file = "toml-0.10.2-py2.py3-none-any.whl", hash = "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b"},
