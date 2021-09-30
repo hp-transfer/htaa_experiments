@@ -25,6 +25,7 @@ lazy-import = "^0.2.2"
 psutil = "^5.8.0"
 pynisher = "^0.6.4"
 sobol-seq = "^0.2.0"
+scikit-learn = "^0.22.0"
 
 [tool.poetry.dev-dependencies]
 jupyter = "^1.0"
