@@ -2,4 +2,4 @@ name: nas
 benchmark:
   _target_: hp_transfer_benchmarks.nas201.NASBenchmark
   adjustment_id: a
-  trajectory_id: cifar
+  trajectory_id: cifar10
