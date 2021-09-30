@@ -30,7 +30,7 @@ hydra:
       #SBATCH --array 1-<PUT_NUM_ARGS>%${cluster.max_array_tasks}
       #SBATCH --partition ${cluster.partition}
       <PUT_ARGS>
-      conda activate htaa_imcl
+      conda activate htaa_icml
       python -m hp_transfer_aa_experiments.run --config-name run_meta <PUT_DOLLAR>{ARGS[$(($SLURM_ARRAY_TASK_ID-1))]}
   sweep:
     dir: results/${experiment_group}
