@@ -6,20 +6,19 @@ import time
 
 from pathlib import Path
 
+import hp_transfer_benchmarks  # pylint: disable=unused-import
+import hp_transfer_optimizers  # pylint: disable=unused-import
 import hydra
 import numpy as np
 import yaml
 
 from gitinfo import gitinfo
-from omegaconf import OmegaConf
-
-import hp_transfer_benchmarks  # pylint: disable=unused-import
-import hp_transfer_optimizers  # pylint: disable=unused-import
-
-from hp_transfer_aa_experiments.analyse.read_results import get_batch_result_row
 from hp_transfer_optimizers.core import nameserver as hpns
 from hp_transfer_optimizers.core import result as result_utils
 from hp_transfer_optimizers.core.worker import Worker
+from omegaconf import OmegaConf
+
+from hp_transfer_aa_experiments.analyse.read_results import get_batch_result_row
 
 
 logger = logging.getLogger("hp_transfer_aa_experiments.run")
@@ -31,9 +30,9 @@ def _read_reference_losses(args):
         reference_losses_path = hydra.utils.to_absolute_path(args.reference_losses_path)
         with Path(reference_losses_path).open("r") as stream:
             reference_losses = yaml.safe_load(stream)
-        reference_losses = reference_losses[args.benchmark.benchmark]
-        reference_losses = reference_losses[str(args.benchmark.trajectory_id)]
-        reference_losses = reference_losses[str(args.benchmark.adjustment_id)]
+        reference_losses = reference_losses[args.benchmark.name]
+        reference_losses = reference_losses[str(args.benchmark.benchmark.trajectory_id)]
+        reference_losses = reference_losses[str(args.benchmark.benchmark.adjustment_id)]
     return reference_losses
 
 
@@ -73,9 +72,7 @@ def _write_batch_result(args, result_batch):
     )
     result_path.parent.mkdir(exist_ok=True, parents=True)
     with result_path.open("a") as result_stream:
-        result_stream.write(
-            "\t".join([str(value) for value in batch_result_row]) + "\n"
-        )
+        result_stream.write("\t".join([str(value) for value in batch_result_row]) + "\n")
 
 
 def _run_on_task_batch(
@@ -123,9 +120,16 @@ def _train_and_eval(optimizer, benchmark, args):
         )
         logger.info(f"Using configspace\n{configspace}".rstrip())
 
-        batch_result = _run_on_task_batch(optimizer, train_batch, configspace, step,
-                                          result_trajectory, trials_per_task,
-                                          trials_until_loss, args)
+        batch_result = _run_on_task_batch(
+            optimizer,
+            train_batch,
+            configspace,
+            step,
+            result_trajectory,
+            trials_per_task,
+            trials_until_loss,
+            args,
+        )
         result_trajectory.insert(batch_result)
 
 
