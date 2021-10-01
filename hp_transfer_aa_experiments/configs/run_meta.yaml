@@ -24,7 +24,7 @@ hydra:
     batch_script_template: |
       #!/bin/bash
       #SBATCH --time 0-01:00
-      #SBATCH --job-name test
+      #SBATCH --job-name ${benchmark.name}
       #SBATCH --output ${hydra.sweep.dir}/cluster_oe/%A_%x_%t.oe
       #SBATCH --error ${hydra.sweep.dir}/cluster_oe/%A_%x_%t.oe
       #SBATCH --array 1-<PUT_NUM_ARGS>%${cluster.max_array_tasks}
