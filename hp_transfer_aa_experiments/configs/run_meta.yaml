@@ -9,7 +9,7 @@ defaults:
 seed: ???
 run_id: ${seed}
 experiment_group: ???
-experiment_name: ${benchmark.name}/${runtype.type}/${approach.name}/trajectory_id_${benchmark.benchmark.trajectory_id}/adjustment_id_${benchmark.benchmark.adjustment_id}/id_${run_id}
+experiment_name: ${benchmark.name}/${runtype.type}_${runtype.dim_factor_pre_adjustment}/${approach.name}/trajectory_id_${benchmark.benchmark.trajectory_id}/adjustment_id_${benchmark.benchmark.adjustment_id}/id_${run_id}
 worker_id: 0
 nic_name: lo
 reference_losses_path: hp_transfer_aa_experiments/reference_losses.yaml
