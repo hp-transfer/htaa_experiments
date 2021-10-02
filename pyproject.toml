@@ -11,12 +11,10 @@ python = ">=3.7,<3.8"  # <3.8 comes from HPOBench
 python-git-info = "^0.6.1"
 seaborn = "^0.10.1"
 hydra-core = "^1.1.0"
-matplotlib = "^3.2.1"
 pandas = "^1.0.4"
 numpy = "^1.20.0"
 hp-transfer-benchmarks = { path = "../ht_benchmarks/", develop = true }
 hp-transfer-optimizers = { path = "../ht_optimizers/", develop = true }
-proplot = "^0.6.4"
 lockfile = "^0.12.2"
 pyDOE = "^0.3.8"
 hydra-script-launcher = {git = "https://github.com/DaStoll/hydra_script_launcher.git"}
@@ -27,6 +25,8 @@ pynisher = "^0.6.4"
 sobol-seq = "^0.2.0"
 scikit-learn = "^0.22.0"
 pyupgrade = "^2.29.0"
+proplot = "^0.6.3"
+matplotlib = "3.2.1"
 
 [tool.poetry.dev-dependencies]
 jupyter = "^1.0"
