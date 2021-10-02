@@ -59,7 +59,7 @@ def _write_batch_result(args, result_batch):
     batch_result_row = get_batch_result_row(
         args.benchmark.name,
         args.runtype.dim_factor_pre_adjustment,
-        args.approach,
+        args.approach.name,
         args.benchmark.benchmark.trajectory_id,
         args.benchmark.benchmark.adjustment_id,
         args.run_id,
