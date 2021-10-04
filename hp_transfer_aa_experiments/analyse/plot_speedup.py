@@ -54,22 +54,26 @@ def analyse_results(
     df = df.drop(
         columns=["loss", "losses", "repeat", "num_hyperparameters", "development_step"]
     )
-    df_tpe = load_data_to_df(
-        results_path_tpe, offline_cache=True, reference_losses=reference_losses_tpe
-    )
-    df_tpe = df_tpe.drop(
-        columns=["loss", "losses", "repeat", "num_hyperparameters", "development_step"]
-    )
+    # df_tpe = load_data_to_df(
+    #     results_path_tpe, offline_cache=True, reference_losses=reference_losses_tpe
+    # )
+    # df_tpe = df_tpe.drop(
+    #     columns=["loss", "losses", "repeat", "num_hyperparameters", "development_step"]
+    # )
 
-    df = df_tpe
+    # df = df_tpe
 
     comparisons = [
         # [["transfer_tpe_no_ttpe"], "tpe2"],
         # [["transfer_tpe_no_best_first"], "tpe2"],
         # [["transfer_tpe"], "tpe2"],
         # [["gp"], "gp2"],
-        [["tpe2"], "tpe3"],
+        # [["tpe2"], "tpe3"],
         # [["gp", "tpe"], "random"],
+        [["transfer_gp"], "gp"],
+        [["transfer_best_first"], "gp"],
+        [["transfer_best_first", "transfer_gp_+_best_first"], "gp"],
+        [["transfer_gp", "transfer_gp_+_best_first"], "gp"],
     ]
     for approaches, baseline_approach in comparisons:
         mean_ratio = _build_mean_ratio(approaches, baseline_approach, df)
@@ -154,14 +158,14 @@ def analyse_results(
         #     ],
         #     "gp",
         # ],
-        [
-            [
-                "transfer_tpe_no_best_first",
-                "transfer_tpe_no_ttpe",
-                "transfer_tpe",
-            ],
-            "tpe2",
-        ],
+        # [
+        #     [
+        #         "transfer_tpe_no_best_first",
+        #         "transfer_tpe_no_ttpe",
+        #         "transfer_tpe",
+        #     ],
+        #     "tpe2",
+        # ],
     ]
     for runtype, df_runtype in df.groupby("runtype"):
         df_runtype = df_runtype.drop(columns=["runtype"])
